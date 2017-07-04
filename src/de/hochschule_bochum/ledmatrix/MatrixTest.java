@@ -2,10 +2,6 @@ package de.hochschule_bochum.ledmatrix;
 
 import com.pi4j.io.spi.SpiChannel;
 import com.pi4j.io.spi.impl.SpiDeviceImpl;
-import de.hochschule_bochum.ledmatrix.objects.Color;
-import de.hochschule_bochum.ledmatrix.objects.ColorType;
-import de.hochschule_bochum.ledmatrix.objects.Display;
-import de.hochschule_bochum.ledmatrix.objects.SevenSegment;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -25,34 +21,7 @@ public class MatrixTest {
         }
 
         if (spi == null) return;
-
-//        Display Display = new Display(5, 1, spi);
-//        int r = 255;
-//        int g = 0;
-//        int b = 0;
-//        int loops = 255 * 3;
-//        while (loops > 0) {
-//            if (r > 0 && b == 0) {
-//                r--;
-//                g++;
-//            }
-//            if (g > 0 && r == 0) {
-//                g--;
-//                b++;
-//            }
-//            if (b > 0 && g == 0) {
-//                r++;
-//                b--;
-//            }
-//            loops--;
-//            Display.setAll(new Color((byte) r, (byte) g, (byte) b));
-//            Thread.sleep(5);
-//        }
-
-        SevenSegment segement = new SevenSegment(spi);
-        for (SevenSegment.Number number : SevenSegment.Number.values()) {
-            segement.setNumber(number, new Color(ColorType.BLUE));
-            Thread.sleep(1000);
-        }
+        Examples e = new Examples(spi);
+        e.colorLoop();
     }
 }
