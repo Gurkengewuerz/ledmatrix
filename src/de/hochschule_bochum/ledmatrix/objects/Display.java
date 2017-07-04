@@ -97,7 +97,6 @@ public class Display {
                     brightness = 0;
                 }
                 sendingData = ArrayUtils.addAll(sendingData, color.toByteArray(brightness));
-//                System.out.println(DatatypeConverter.printHexBinary(color.toByteArray(brightness)) + " " + color.toString());
             }
         }
         sendingData = ArrayUtils.add(sendingData, (byte) 1);
