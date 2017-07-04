@@ -2,8 +2,11 @@ package de.hochschule_bochum.ledmatrix.objects;
 
 import com.pi4j.io.spi.impl.SpiDeviceImpl;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.Validate;
 
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Created by nikla on 03.07.2017.
@@ -36,28 +39,23 @@ public class Display {
         return width;
     }
 
-    public double getGlobal_brightness() {
+    public double getGlobalBrightness() {
         return global_brightness;
     }
 
     public void set(int x, int y, Color c) {
         display[y - 1][x - 1] = c;
+        update();
     }
 
     public void setGlobal_brightness(double global_brightness) {
+        Validate.inclusiveBetween(0D, 1D, global_brightness);
         this.global_brightness = global_brightness;
+        update();
     }
 
     public Color get(int x, int y) {
         return display[y - 1][x - 1];
-    }
-
-    public void clear() {
-        for (int y = 1; y <= length; y++) {
-            for (int x = 1; x <= width; x++) {
-                set(x, y, null);
-            }
-        }
     }
 
     public void setAll(Color c) {
@@ -66,6 +64,10 @@ public class Display {
                 set(x, y, c);
             }
         }
+    }
+
+    public void clear() {
+        setAll(null);
     }
 
     public void drawAscii() {
@@ -80,7 +82,7 @@ public class Display {
         System.out.println();
     }
 
-    public void draw() throws IOException {
+    private void draw() throws IOException {
         byte[] sendingData = new byte[0];
         sendingData = ArrayUtils.add(sendingData, (byte) 0);
         sendingData = ArrayUtils.add(sendingData, (byte) 0);
@@ -91,7 +93,7 @@ public class Display {
                 Color color = get(x, y);
                 double brightness = global_brightness;
                 if (color == null) {
-                    color = Color.BLACK;
+                    color = new Color(ColorType.BLACK);
                     brightness = 0;
                 }
                 sendingData = ArrayUtils.addAll(sendingData, color.toByteArray(brightness));
@@ -104,5 +106,13 @@ public class Display {
         sendingData = ArrayUtils.add(sendingData, (byte) 1);
 
         spi.write(sendingData, 0, sendingData.length);
+    }
+
+    public void update() {
+        try {
+            draw();
+        } catch (IOException e) {
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
+        }
     }
 }
