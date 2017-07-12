@@ -19,47 +19,47 @@ public enum TileType {
     public Tile getShape() {
         switch (this) {
             case I:
-                return new Tile(
+                return new Tile(new Color(ColorType.CYAN),
                         new int[]{0, 0, 0, 0},
                         new int[]{1, 1, 1, 1},
                         new int[]{0, 0, 0, 0},
                         new int[]{0, 0, 0, 0}
-                ).setColor(new Color(ColorType.CYAN));
+                );
             case J:
-                return new Tile(
+                return new Tile(new Color(ColorType.BLUE),
                         new int[]{1, 0, 0},
                         new int[]{1, 1, 1},
                         new int[]{0, 0, 0}
-                ).setColor(new Color(ColorType.BLUE));
+                );
             case L:
-                return new Tile(
+                return new Tile(new Color(ColorType.ORANGE),
                         new int[]{0, 0, 1},
                         new int[]{1, 1, 1},
                         new int[]{0, 0, 0}
-                ).setColor(new Color(ColorType.ORANGE));
+                );
             case O:
-                return new Tile(
+                return new Tile(new Color(ColorType.YELLOW),
                         new int[]{1, 1},
                         new int[]{1, 1}
-                ).setColor(new Color(ColorType.YELLOW));
+                );
             case S:
-                return new Tile(
+                return new Tile(new Color(ColorType.RED),
                         new int[]{0, 1, 1},
                         new int[]{1, 1, 0},
                         new int[]{0, 0, 0}
-                ).setColor(new Color(ColorType.RED));
+                );
             case Z:
-                return new Tile(
+                return new Tile(new Color(ColorType.GREEN),
                         new int[]{1, 1, 0},
                         new int[]{0, 1, 1},
                         new int[]{0, 0, 0}
-                ).setColor(new Color(ColorType.GREEN));
+                );
             case T:
-                return new Tile(
+                return new Tile(new Color(ColorType.PURPLE),
                         new int[]{0, 1, 0},
                         new int[]{1, 1, 1},
                         new int[]{0, 0, 0}
-                ).setColor(new Color(ColorType.PURPLE));
+                );
             default:
                 throw new IllegalArgumentException("Unknown Tile");
         }

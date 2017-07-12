@@ -1,5 +1,6 @@
 package de.hochschule_bochum;
 
+import de.hochschule_bochum.ledmatrix.objects.Display;
 import de.hochschule_bochum.server.controller.ButtonState;
 import de.hochschule_bochum.server.controller.ControllerServer;
 import de.hochschule_bochum.tetris.Tetris;
@@ -16,8 +17,10 @@ public class TetrisLED {
     public static void main(String[] args) {
         // TODO: Check native libraries
         Logger.getLogger(TetrisLED.class.getName()).log(Level.INFO, "Tetris LED Started");
+        Display display = new Display(10, 20, true);
 
         Tetris tetris = new Tetris();
+        tetris.setDisplay(display);
 
         ControllerServer controller = new ControllerServer();
         controller.setOnKeyChangeListener((key, newState) -> {
@@ -64,6 +67,10 @@ public class TetrisLED {
         controller.setOnKeyHoldListener(key -> {
             controller.setTimesPerSec(tetris.getTickSpeed());
             System.out.println("Hold " + key);
+        });
+
+        controller.setOnDisconnectListener(device -> {
+            System.exit(1);
         });
 
         tetris.start();

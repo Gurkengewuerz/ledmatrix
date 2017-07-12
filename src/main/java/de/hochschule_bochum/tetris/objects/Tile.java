@@ -12,14 +12,10 @@ public class Tile {
     private Color c;
     private int rotation;
 
-    public Tile(int[]... block) {
+    public Tile(Color c, int[]... block) {
+        this.c = c;
         this.size = block.length;
-        shapes = new int[size][size];
-        for (int i = 0; i < block.length; i++) {
-            for (int j = 0; j < block[i].length; j++) {
-                shapes[i][j] = block[i][j];
-            }
-        }
+        shapes = block;
         rotation = 0;
     }
 
@@ -28,11 +24,6 @@ public class Tile {
         this.shapes = copyTile.getShapes();
         this.c = copyTile.getColor();
         this.rotation = copyTile.getRotation();
-    }
-
-    public Tile setColor(Color c) {
-        this.c = c;
-        return this;
     }
 
     public int getSize() {
@@ -75,7 +66,7 @@ public class Tile {
     }
 
     public boolean isPartOfTile(int x, int y) {
-        return getRotatedTile(rotation)[x][y] == 1;
+        return getRotatedTile(rotation)[y][x] == 1;
     }
 
     public int getSpaceLeft() {

@@ -1,6 +1,5 @@
 package de.hochschule_bochum.ledmatrix;
 
-import com.pi4j.io.spi.impl.SpiDeviceImpl;
 import de.hochschule_bochum.ledmatrix.objects.Color;
 import de.hochschule_bochum.ledmatrix.objects.ColorType;
 import de.hochschule_bochum.ledmatrix.objects.Display;
@@ -14,14 +13,8 @@ import java.util.logging.Logger;
  */
 public class Examples {
 
-    private SpiDeviceImpl spi;
-
-    public Examples(SpiDeviceImpl spi) {
-        this.spi = spi;
-    }
-
     public void RGBFade() {
-        Display display = new Display(5, 1, spi);
+        Display display = new Display(5, 1);
         int r = 255;
         int g = 0;
         int b = 0;
@@ -51,7 +44,7 @@ public class Examples {
     }
 
     public void colorLoop() {
-        Display display = new Display(5, 1, spi);
+        Display display = new Display(5, 1);
         try {
             while (true) {
 
@@ -77,7 +70,7 @@ public class Examples {
 
     public void sevenSegmentCount() {
         try {
-            SevenSegment segement = new SevenSegment(spi);
+            SevenSegment segement = new SevenSegment();
             for (SevenSegment.Number number : SevenSegment.Number.values()) {
                 segement.setNumber(number, new Color(ColorType.BLUE));
                 Thread.sleep(1000);

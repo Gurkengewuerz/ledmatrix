@@ -46,7 +46,7 @@ public class ControllerServer {
         responseHandler.setTimesPerSec(timesPerSec);
     }
 
-    public void setDisconnectListener(Callback<RemoteDevice> disconnectListener) {
+    public void setOnDisconnectListener(Callback<RemoteDevice> disconnectListener) {
         this.disconnectListener = disconnectListener;
     }
 

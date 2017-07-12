@@ -26,4 +26,13 @@ public class Color {
         byte brightnessByte = (byte) (0xE0 | ((int) (31 * brightness)));
         return new byte[]{brightnessByte, b, g, r};
     }
+
+    @Override
+    public String toString() {
+        return "Color{" +
+                "r=" + (r & 0xFF) +
+                ", g=" + (g & 0xFF) +
+                ", b=" + (b & 0xFF) +
+                '}';
+    }
 }

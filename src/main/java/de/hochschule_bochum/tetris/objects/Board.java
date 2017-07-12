@@ -1,5 +1,7 @@
 package de.hochschule_bochum.tetris.objects;
 
+import de.hochschule_bochum.ledmatrix.objects.Display;
+
 /**
  * Created by nikla on 04.07.2017.
  */
@@ -7,10 +9,11 @@ public class Board {
     private int ROW_X = 10; // X. COL
     private int ROW_Y = 20; // Y, Rows
     private Tile[][] tiles;
+    private Display display;
 
-    public Board() {
+    public Board(Display display) {
         tiles = new Tile[ROW_Y][ROW_X];
-
+        this.display = display;
     }
 
     public int getWidth() {
@@ -67,7 +70,8 @@ public class Board {
 
     /**
      * Check if any Line is full.
-     * @return  int Number of cleared Lines
+     *
+     * @return int Number of cleared Lines
      */
     public int checkLines() {
         int completedLines = 0;
@@ -95,7 +99,6 @@ public class Board {
     }
 
     public void draw(Tile currTile, int currentX, int currentY) {
-        clearConsole();
         Tile[][] drawingTiles = new Tile[ROW_Y][ROW_X];
         for (int y = 0; y < ROW_Y; y++) {
             for (int x = 0; x < ROW_X; x++) {
@@ -108,32 +111,21 @@ public class Board {
         if (currTile != null) {
             for (int y = 0; y < currTile.getSize(); y++) {
                 for (int x = 0; x < currTile.getSize(); x++) {
-                    if (currTile.isPartOfTile(x, y)) {
-                        drawingTiles[currentY + y][currentX + x] = currTile;
-                    }
+                    if (currTile.isPartOfTile(x, y)) drawingTiles[currentY + y][currentX + x] = currTile;
+
                 }
             }
         }
 
         for (int y = 0; y < ROW_Y; y++) {
-            String line = "";
             for (int x = 0; x < ROW_X; x++) {
                 Tile tile = drawingTiles[y][x];
-                if (tile != null) {
-                    line += "+";
-                } else {
-                    line += "-";
-                }
+                if (tile == null)
+                    display.set(x + 1, y + 1, null, false);
+                else
+                    display.set(x + 1, y + 1, tile.getColor(), false);
             }
-            System.out.println(line);
         }
-        System.out.println();
-        System.out.println();
-        System.out.println();
-    }
-
-    public final static void clearConsole() {
-        System.out.print("\033[H\033[2J");
-        System.out.flush();
+        display.update();
     }
 }

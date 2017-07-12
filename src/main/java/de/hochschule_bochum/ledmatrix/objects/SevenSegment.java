@@ -1,7 +1,5 @@
 package de.hochschule_bochum.ledmatrix.objects;
 
-import com.pi4j.io.spi.impl.SpiDeviceImpl;
-
 /**
  * Created by nikla on 04.07.2017.
  */
@@ -50,8 +48,8 @@ public class SevenSegment extends Display {
         }
     }
 
-    public SevenSegment(SpiDeviceImpl spi) {
-        super(7, 1, spi);
+    public SevenSegment() {
+        super(7, 1);
     }
 
     public void setNumber(Number num, Color c) {

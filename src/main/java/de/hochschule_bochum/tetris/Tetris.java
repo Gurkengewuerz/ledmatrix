@@ -1,5 +1,6 @@
 package de.hochschule_bochum.tetris;
 
+import de.hochschule_bochum.ledmatrix.objects.Display;
 import de.hochschule_bochum.tetris.objects.*;
 
 import java.util.Random;
@@ -13,6 +14,7 @@ public class Tetris {
     private Clock masterClock;
     private float tickSpeed;
     private boolean gameover;
+    private Display display;
 
     public void start() {
         reset();
@@ -38,10 +40,11 @@ public class Tetris {
     }
 
     public void reset() {
+        if(display == null) throw new NullPointerException("Display is not set. Use .setDisplay()");
         gameover = false;
         tickSpeed = 1f;
         masterClock = new Clock(tickSpeed, false);
-        gameBoard = new Board();
+        gameBoard = new Board(display);
         spawn();
     }
 
@@ -117,6 +120,10 @@ public class Tetris {
             currentY = newRow;
             currentX = newColumn;
         }
+    }
+
+    public void setDisplay(Display display) {
+        this.display = display;
     }
 
     public Clock getMasterClock() {
