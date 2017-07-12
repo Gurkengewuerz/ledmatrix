@@ -1,15 +1,8 @@
 package de.hochschule_bochum.tetris;
 
-import com.ivan.xinput.XInputButtonsDelta;
-import com.ivan.xinput.XInputComponentsDelta;
-import com.ivan.xinput.XInputDevice;
-import com.ivan.xinput.enums.XInputButton;
-import com.ivan.xinput.exceptions.XInputNotLoadedException;
 import de.hochschule_bochum.tetris.objects.*;
 
 import java.util.Random;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class Tetris {
 
@@ -23,48 +16,11 @@ public class Tetris {
 
     public void start() {
         reset();
-        XInputDevice device = null;
-
-        if (XInputDevice.isAvailable()) {
-            System.out.println("XInput 1.3 is available on this platform.");
-            try {
-                XInputDevice[] devices = XInputDevice.getAllDevices();
-                device = XInputDevice.getDeviceFor(0);
-            } catch (XInputNotLoadedException e) {
-                Logger.getLogger(Tetris.class.getName()).log(Level.SEVERE, null, e);
-            }
-        }
 
         while (true) {
 
             if (gameover) {
                 gameBoard.clear();
-            }
-
-            if (device != null) {
-                if (device.poll()) {
-                    XInputComponentsDelta componentsDelta = device.getDelta();
-                    XInputButtonsDelta buttonsDelta = componentsDelta.getButtons();
-                    if (buttonsDelta.isPressed(XInputButton.DPAD_LEFT)) {
-                        move(Direction.LEFT);
-                    } else if (buttonsDelta.isPressed(XInputButton.DPAD_RIGHT)) {
-                        move(Direction.RIGHT);
-                    } else if (buttonsDelta.isPressed(XInputButton.DPAD_UP)) {
-                        rotatePiece(Direction.RIGHT);
-                    } else if (buttonsDelta.isPressed(XInputButton.DPAD_DOWN)) {
-                        getMasterClock().setTickSpeed(35f);
-                    } else if (buttonsDelta.isReleased(XInputButton.DPAD_DOWN)) {
-                        getMasterClock().setTickSpeed(getTickSpeed());
-                    } else if (buttonsDelta.isPressed(XInputButton.BACK)) {
-                        reset();
-                    } else if (buttonsDelta.isPressed(XInputButton.START)) {
-                        if (getMasterClock().isPaused()) {
-                            getMasterClock().start();
-                        } else {
-                            getMasterClock().pause();
-                        }
-                    }
-                }
             }
 
             if (masterClock.timeElapsed()) {

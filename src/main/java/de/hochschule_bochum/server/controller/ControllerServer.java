@@ -136,14 +136,4 @@ public class ControllerServer {
             if (holdTask != null) holdTask.cancel();
         }
     }
-
-    /* TODO:
-     * - Key Enum als Klasse
-     * - isPressed()
-     * - lastePressed (millis since last press)
-     * - getState()
-     * - #keepsPressingCallback(Key)
-     * - #onClick(Key, ButtonState)
-     * - Ein Callback für alle Buttons
-     */
 }

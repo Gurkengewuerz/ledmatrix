@@ -1,5 +1,6 @@
 package de.hochschule_bochum.server.bluetooth;
 
+import com.intel.bluetooth.BlueCoveImpl;
 import de.hochschule_bochum.server.Callback;
 
 import javax.bluetooth.RemoteDevice;
@@ -39,17 +40,17 @@ public class BluetoothServer {
 
             //Wait for client connection
             System.out.println("\nBluetoothServer Started. Waiting for clients to connect...");
-            StreamConnection connection = streamConnNotifier.acceptAndOpen();
+            sc = streamConnNotifier.acceptAndOpen();
 
-            RemoteDevice dev = RemoteDevice.getRemoteDevice(connection);
+            RemoteDevice dev = RemoteDevice.getRemoteDevice(sc);
 
             System.out.println("Remote device address: " + dev.getBluetoothAddress());
             System.out.println("Remote device name: " + dev.getFriendlyName(true));
 
-            receiveThread = new ReceiveThread(connection.openInputStream(), receiveCallback);
+            receiveThread = new ReceiveThread(sc.openInputStream(), receiveCallback);
             receiveThread.start();
 
-            sendThread = new SendThread(connection.openOutputStream());
+            sendThread = new SendThread(sc.openOutputStream());
             sendThread.start();
 
             connected = true;
@@ -59,18 +60,17 @@ public class BluetoothServer {
                 @Override
                 public void run() {
                     try {
-                        RemoteDevice.getRemoteDevice(connection);
+                        RemoteDevice.getRemoteDevice(sc);
                     } catch (IOException ignored) {
                         connected = false;
                         disconnectCallback.callback(dev);
-                        cancel();
                         close();
+                        cancel();
                     }
 
                 }
             }, 1000, 1000);
 
-            sc = connection;
             return true;
         } catch (IOException e) {
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
@@ -84,6 +84,7 @@ public class BluetoothServer {
                 sendThread.interrupt();
                 receiveThread.interrupt();
                 sc.close();
+                BlueCoveImpl.shutdown();
             } catch (IOException e) {
                 Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
             }
@@ -163,6 +164,5 @@ public class BluetoothServer {
                 e.printStackTrace();
             }
         }
-
     }
 }

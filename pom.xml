@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>de.hochschule_bochum</groupId>
+    <artifactId>LEDMatrix</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <name>LEDMatrix</name>
+    <description>An LED Matrix during an internship at the Hochschule Bochum</description>
+    <url>https://github.com/Gurkengewuerz/ledmatrix</url>
+
+    <issueManagement>
+        <url>https://github.com/Gurkengewuerz/ledmatrix/issues</url>
+        <system>GitHub Issues</system>
+    </issueManagement>
+
+    <scm>
+        <url>https://github.com/Gurkengewuerz/ledmatrix</url>
+        <connection>scm:git:git://github.com/Gurkengewuerz/ledmatrix.git</connection>
+        <developerConnection>scm:git:git@github.com/Gurkengewuerz/ledmatrix.git</developerConnection>
+    </scm>
+
+    <developers>
+        <developer>
+            <name>Gurkengewuerz</name>
+            <email>admin@gurkengewuerz.de</email>
+            <url>https://gurkengewuerz.de</url>
+            <timezone>Europe/Berlin</timezone>
+        </developer>
+    </developers>
+
+    <repositories>
+        <repository>
+            <id>oss.sonatype.org</id>
+            <url>http://oss.sonatype.org/content/repositories/releases</url>
+        </repository>
+        <repository>
+            <id>oss.sonatype.org-snapshot</id>
+            <url>http://oss.sonatype.org/content/repositories/snapshots</url>
+        </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>br.com.criativasoft.opendevice.ext</groupId>
+            <artifactId>bluecove</artifactId>
+            <version>2.1.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>br.com.criativasoft.opendevice.ext</groupId>
+            <artifactId>bluecove-gpl-arm</artifactId>
+            <version>2.1.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>br.com.criativasoft.opendevice.ext</groupId>
+            <artifactId>bluecove-gpl</artifactId>
+            <version>2.1.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20160810</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.5</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.strikerx3</groupId>
+            <artifactId>jxinput</artifactId>
+            <version>ca55984</version>    <!-- JXInput 0.8 -->
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.5.1</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.6</version>
+                <configuration>
+                    <appendAssemblyId>false</appendAssemblyId>
+                    <finalName>${project.artifactId}</finalName>
+                    <descriptorRefs>
+                        <descriptorRef>
+                            jar-with-dependencies
+                        </descriptorRef>
+                    </descriptorRefs>
+                    <archive>
+                        <manifest>
+                            <mainClass>${project.groupId}.TetrisLED</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>assamble</id>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <phase>package</phase>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
