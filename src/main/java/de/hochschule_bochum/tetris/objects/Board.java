@@ -111,8 +111,8 @@ public class Board {
         if (currTile != null) {
             for (int y = 0; y < currTile.getSize(); y++) {
                 for (int x = 0; x < currTile.getSize(); x++) {
+                    if(currentY + y > ROW_Y ||currentX + x > ROW_X) return;
                     if (currTile.isPartOfTile(x, y)) drawingTiles[currentY + y][currentX + x] = currTile;
-
                 }
             }
         }

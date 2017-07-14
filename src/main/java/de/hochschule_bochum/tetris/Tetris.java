@@ -30,12 +30,14 @@ public class Tetris {
 
         while (true) {
 
-            if (gameover) {
+            if (gameover && masterClock.isPaused()) {
                 status.setStatus(GameStatus.Status.GAMEOVER);
                 gameBoard.clear();
+            } else if (masterClock.isPaused()) {
+                status.setStatus(GameStatus.Status.PAUSE);
+            } else {
+                status.setStatus(GameStatus.Status.RUNNING);
             }
-
-            if (masterClock.isPaused()) status.setStatus(GameStatus.Status.PAUSE);
 
             if (masterClock.timeElapsed()) {
                 updateGame();
