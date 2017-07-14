@@ -10,6 +10,6 @@ public class MatrixTest {
         Logger.getLogger(MatrixTest.class.getName()).log(Level.INFO, "Startig Programm");
 
         Examples e = new Examples();
-        e.colorLoop();
+        e.maxCurrent();
     }
 }

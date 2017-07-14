@@ -112,14 +112,26 @@ public class Display {
         sendingData = ArrayUtils.add(sendingData, (byte) 0);
         sendingData = ArrayUtils.add(sendingData, (byte) 0);
         for (int y = 1; y <= length; y++) {
-            for (int x = 1; x <= width; x++) {
-                Color color = get(x, y);
-                double brightness = global_brightness;
-                if (color == null) {
-                    color = new Color(ColorType.BLACK);
-                    brightness = 0;
+            if(y % 2 == 0) {
+                for (int x = width; x >= 1; x--) {
+                    Color color = get(x, y);
+                    double brightness = global_brightness;
+                    if (color == null) {
+                        color = new Color(ColorType.BLACK);
+                        brightness = 0;
+                    }
+                    sendingData = ArrayUtils.addAll(sendingData, color.toByteArray(brightness));
                 }
-                sendingData = ArrayUtils.addAll(sendingData, color.toByteArray(brightness));
+            } else {
+                for (int x = 1; x <= width; x++) {
+                    Color color = get(x, y);
+                    double brightness = global_brightness;
+                    if (color == null) {
+                        color = new Color(ColorType.BLACK);
+                        brightness = 0;
+                    }
+                    sendingData = ArrayUtils.addAll(sendingData, color.toByteArray(brightness));
+                }
             }
         }
         sendingData = ArrayUtils.add(sendingData, (byte) 1);

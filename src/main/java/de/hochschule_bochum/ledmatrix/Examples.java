@@ -14,37 +14,40 @@ import java.util.logging.Logger;
 public class Examples {
 
     public void RGBFade() {
-        Display display = new Display(5, 1);
+        Display display = new Display(53, 1);
         int r = 255;
         int g = 0;
         int b = 0;
-        int loops = 255 * 3;
-        while (loops > 0) {
-            if (r > 0 && b == 0) {
-                r--;
-                g++;
+        while (true) {
+            int loops = 255 * 3;
+            while (loops > 0) {
+                if (r > 0 && b == 0) {
+                    r--;
+                    g++;
+                }
+                if (g > 0 && r == 0) {
+                    g--;
+                    b++;
+                }
+                if (b > 0 && g == 0) {
+                    r++;
+                    b--;
+                }
+                loops--;
+                display.setAll(new Color((byte) r, (byte) g, (byte) b));
+                try {
+                    Thread.sleep(5);
+                } catch (InterruptedException e) {
+                    Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
+                }
             }
-            if (g > 0 && r == 0) {
-                g--;
-                b++;
-            }
-            if (b > 0 && g == 0) {
-                r++;
-                b--;
-            }
-            loops--;
-            display.setAll(new Color((byte) r, (byte) g, (byte) b));
-            try {
-                Thread.sleep(5);
-            } catch (InterruptedException e) {
-                Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
-            }
+            display.clear();
+
         }
-        display.clear();
     }
 
     public void colorLoop() {
-        Display display = new Display(5, 1);
+        Display display = new Display(53, 1);
         try {
             while (true) {
 
@@ -66,6 +69,18 @@ public class Examples {
         } catch (InterruptedException e) {
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
         }
+    }
+
+    public void maxCurrent() {
+        Display display = new Display(53, 1);
+        display.setAll(new Color((byte)255,(byte)255,(byte)255));
+        display.setGlobal_brightness(1d);
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        display.clear();
     }
 
     public void sevenSegmentCount() {
