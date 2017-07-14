@@ -1,4 +1,4 @@
-package de.hochschule_bochum.tetris.objects;
+package de.hochschule_bochum.engine;
 
 /**
  * Created by nikla on 04.07.2017.

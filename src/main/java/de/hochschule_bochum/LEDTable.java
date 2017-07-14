@@ -1,10 +1,11 @@
 package de.hochschule_bochum;
 
+import de.hochschule_bochum.engine.Direction;
+import de.hochschule_bochum.engine.GameStatus;
 import de.hochschule_bochum.ledmatrix.objects.Display;
 import de.hochschule_bochum.server.controller.ButtonState;
 import de.hochschule_bochum.server.controller.ControllerServer;
 import de.hochschule_bochum.tetris.Tetris;
-import de.hochschule_bochum.tetris.objects.Direction;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -12,11 +13,11 @@ import java.util.logging.Logger;
 /**
  * Created by nikla on 04.07.2017.
  */
-public class TetrisLED {
+public class LEDTable {
 
     public static void main(String[] args) {
         // TODO: Check native libraries
-        Logger.getLogger(TetrisLED.class.getName()).log(Level.INFO, "Tetris LED Started");
+        Logger.getLogger(LEDTable.class.getName()).log(Level.INFO, "Tetris LED Started");
         Display display = new Display(10, 20, true);
         GameStatus status = new GameStatus();
 

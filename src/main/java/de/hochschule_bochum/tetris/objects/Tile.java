@@ -1,13 +1,15 @@
 package de.hochschule_bochum.tetris.objects;
 
+import de.hochschule_bochum.engine.BoardTile;
+import de.hochschule_bochum.engine.Direction;
 import de.hochschule_bochum.ledmatrix.objects.Color;
-import de.hochschule_bochum.tetris.utils.ArrayUtils;
-import de.hochschule_bochum.tetris.utils.Utils;
+import de.hochschule_bochum.utils.ArrayUtils;
+import de.hochschule_bochum.utils.Utils;
 
 /**
  * Created by nikla on 04.07.2017.
  */
-public class Tile {
+public class Tile implements BoardTile{
     private int size;
     private int[][] shapes;
     private Color c;

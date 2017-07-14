@@ -1,6 +1,6 @@
 package de.hochschule_bochum.server.controller;
 
-import de.hochschule_bochum.GameStatus;
+import de.hochschule_bochum.engine.GameStatus;
 import de.hochschule_bochum.server.Callback;
 import de.hochschule_bochum.server.MultiCallback;
 import de.hochschule_bochum.server.bluetooth.BluetoothServer;

@@ -1,4 +1,4 @@
-package de.hochschule_bochum;
+package de.hochschule_bochum.engine;
 
 /**
  * Created by nikla on 07.07.2017.

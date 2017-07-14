@@ -1,8 +1,12 @@
 package de.hochschule_bochum.tetris;
 
-import de.hochschule_bochum.GameStatus;
+import de.hochschule_bochum.engine.Clock;
+import de.hochschule_bochum.engine.Direction;
+import de.hochschule_bochum.engine.GameStatus;
 import de.hochschule_bochum.ledmatrix.objects.Display;
-import de.hochschule_bochum.tetris.objects.*;
+import de.hochschule_bochum.tetris.objects.TetrisBoard;
+import de.hochschule_bochum.tetris.objects.Tile;
+import de.hochschule_bochum.tetris.objects.TileType;
 
 import java.util.Random;
 import java.util.logging.Level;
@@ -12,7 +16,7 @@ public class Tetris {
 
     private int currentX;
     private int currentY;
-    private Board gameBoard;
+    private TetrisBoard gameBoard;
     private Tile currentTile;
     private Clock masterClock;
     private float tickSpeed;
@@ -58,7 +62,7 @@ public class Tetris {
         gameover = false;
         tickSpeed = 1f;
         masterClock = new Clock(tickSpeed, false);
-        gameBoard = new Board(display);
+        gameBoard = new TetrisBoard(display);
         status.reset(GameStatus.Status.RUNNING, GameStatus.TimerType.NONE, 0);
         spawn();
     }

@@ -1,4 +1,4 @@
-package de.hochschule_bochum.tetris.utils;
+package de.hochschule_bochum.utils;
 
 import java.util.Random;
 
