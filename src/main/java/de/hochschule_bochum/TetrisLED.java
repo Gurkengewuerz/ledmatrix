@@ -18,11 +18,11 @@ public class TetrisLED {
         // TODO: Check native libraries
         Logger.getLogger(TetrisLED.class.getName()).log(Level.INFO, "Tetris LED Started");
         Display display = new Display(10, 20, true);
+        GameStatus status = new GameStatus();
 
-        Tetris tetris = new Tetris();
-        tetris.setDisplay(display);
+        Tetris tetris = new Tetris(display, status);
 
-        ControllerServer controller = new ControllerServer();
+        ControllerServer controller = new ControllerServer(status);
         controller.setOnKeyChangeListener((key, newState) -> {
             switch (key) {
                 case LEFT:

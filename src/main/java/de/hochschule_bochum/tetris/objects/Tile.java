@@ -2,6 +2,7 @@ package de.hochschule_bochum.tetris.objects;
 
 import de.hochschule_bochum.ledmatrix.objects.Color;
 import de.hochschule_bochum.tetris.utils.ArrayUtils;
+import de.hochschule_bochum.tetris.utils.Utils;
 
 /**
  * Created by nikla on 04.07.2017.
@@ -62,6 +63,11 @@ public class Tile {
             if (rotation >= 4) rotation = 0;
             return rotation;
         }
+        return rotation;
+    }
+
+    public int rotateRandom() {
+        rotation = Utils.randInt(0, 4);
         return rotation;
     }
 

@@ -19,8 +19,9 @@ public class ControllerServer {
     private BluetoothServer btServer;
     private Callback<RemoteDevice> disconnectListener;
     private ResponseHandler responseHandler;
+    private GameStatus gameStatus;
 
-    public ControllerServer() {
+    public ControllerServer(GameStatus gameStatus) {
         btServer = new BluetoothServer("Remote Device");
         responseHandler = new ResponseHandler();
         btServer.startServer(responseHandler, device -> {
@@ -28,6 +29,15 @@ public class ControllerServer {
             responseHandler.close();
             btServer.close();
         });
+        this.gameStatus = gameStatus;
+
+        Timer timer = new Timer();
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                sendStatus(gameStatus);
+            }
+        }, 0, 5 * 100);
     }
 
     public void setOnKeyChangeListener(MultiCallback<Key, ButtonState> keyChangeListener) {
@@ -52,7 +62,15 @@ public class ControllerServer {
 
     public void sendStatus(GameStatus status) {
         if (btServer == null) return;
-        btServer.send(status.toString());
+        if (gameStatus == null) return;
+        JSONObject json = new JSONObject();
+        json.put("protocol", 2);
+        json.put("status", status.getStatus().toString());
+        json.put("level", status.getLevel());
+        json.put("highscore", status.getHighscore());
+        json.put("timertype", status.getType().toString());
+        json.put("timer", status.getTime());
+        btServer.send(json.toString());
     }
 
 
@@ -87,7 +105,12 @@ public class ControllerServer {
         @Override
         public void callback(String response) {
             jsonData = new JSONObject(response);
-            parseData();
+            if (!jsonData.has("protocol")) return;
+            switch (jsonData.getInt("protocol")) {
+                case 1:
+                    parseData();
+                    break;
+            }
         }
 
         public void setOnKeyChangeListener(MultiCallback<Key, ButtonState> keyChangeListener) {

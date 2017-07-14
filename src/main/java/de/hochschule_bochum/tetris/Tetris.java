@@ -1,9 +1,12 @@
 package de.hochschule_bochum.tetris;
 
+import de.hochschule_bochum.GameStatus;
 import de.hochschule_bochum.ledmatrix.objects.Display;
 import de.hochschule_bochum.tetris.objects.*;
 
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Tetris {
 
@@ -15,6 +18,12 @@ public class Tetris {
     private float tickSpeed;
     private boolean gameover;
     private Display display;
+    private GameStatus status;
+
+    public Tetris(Display display, GameStatus status) {
+        this.status = status;
+        this.display = display;
+    }
 
     public void start() {
         reset();
@@ -22,8 +31,11 @@ public class Tetris {
         while (true) {
 
             if (gameover) {
+                status.setStatus(GameStatus.Status.GAMEOVER);
                 gameBoard.clear();
             }
+
+            if (masterClock.isPaused()) status.setStatus(GameStatus.Status.PAUSE);
 
             if (masterClock.timeElapsed()) {
                 updateGame();
@@ -33,18 +45,19 @@ public class Tetris {
             try {
                 Thread.sleep(50);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
             }
 
         }
     }
 
     public void reset() {
-        if(display == null) throw new NullPointerException("Display is not set. Use .setDisplay()");
+        if (display == null) throw new NullPointerException("Display is not set.");
         gameover = false;
         tickSpeed = 1f;
         masterClock = new Clock(tickSpeed, false);
         gameBoard = new Board(display);
+        status.reset(GameStatus.Status.RUNNING, GameStatus.TimerType.NONE, 0);
         spawn();
     }
 
@@ -55,7 +68,23 @@ public class Tetris {
             gameBoard.setPieces(currentTile, currentX, currentY);
             int cleared = gameBoard.checkLines();
             if (cleared > 0) {
-                // add Highscore
+                switch (cleared) {
+                    case 1:
+                        status.addHighScore(40 * status.getLevel());
+                        break;
+
+                    case 2:
+                        status.addHighScore(100 * status.getLevel());
+                        break;
+
+                    case 3:
+                        status.addHighScore(300 * status.getLevel());
+                        break;
+
+                    case 4:
+                        status.addHighScore(1200 * status.getLevel());
+                        break;
+                }
             }
 
             tickSpeed += 0.035f;
@@ -67,6 +96,7 @@ public class Tetris {
     public void spawn() {
         Random rnd = new Random();
         currentTile = TileType.values()[rnd.nextInt(TileType.values().length)].getShape();
+        currentTile.rotateRandom();
         currentY = 0;
         currentX = 5 - (currentTile.getSize() >> 1);
         if (!gameBoard.isValidAndEmpty(currentTile, currentX, currentY + 1)) {
@@ -120,10 +150,6 @@ public class Tetris {
             currentY = newRow;
             currentX = newColumn;
         }
-    }
-
-    public void setDisplay(Display display) {
-        this.display = display;
     }
 
     public Clock getMasterClock() {
