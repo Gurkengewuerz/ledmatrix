@@ -8,7 +8,7 @@ import de.hochschule_bochum.ledmatrix.objects.Display;
  */
 public class TetrisBoard extends BoardObject<Tile> {
     public TetrisBoard(Display display) {
-        super(display);
+        super(Tile.class, display);
     }
 
     public boolean isValidAndEmpty(Tile tile, int x, int y) {

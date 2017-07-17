@@ -2,6 +2,7 @@ package de.hochschule_bochum.tetris;
 
 import de.hochschule_bochum.engine.Clock;
 import de.hochschule_bochum.engine.Direction;
+import de.hochschule_bochum.engine.Game;
 import de.hochschule_bochum.engine.GameStatus;
 import de.hochschule_bochum.ledmatrix.objects.Display;
 import de.hochschule_bochum.tetris.objects.TetrisBoard;
@@ -12,7 +13,7 @@ import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class Tetris {
+public class Tetris implements Game{
 
     private int currentX;
     private int currentY;
@@ -99,7 +100,7 @@ public class Tetris {
         }
     }
 
-    public void spawn() {
+    private void spawn() {
         Random rnd = new Random();
         currentTile = TileType.values()[rnd.nextInt(TileType.values().length)].getShape();
         currentTile.rotateRandom();
