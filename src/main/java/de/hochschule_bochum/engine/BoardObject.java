@@ -14,9 +14,9 @@ public abstract class BoardObject<T extends BoardTile> {
     protected Display display;
 
     @SuppressWarnings("unchecked")
-    public BoardObject(Display display) {
+    public BoardObject(Class<T> c, Display display) {
         this.display = display;
-        this.tiles = (T[][]) Array.newInstance(BoardObject.class, 10, 20);
+        this.tiles = (T[][]) Array.newInstance(c, ROW_Y, ROW_X);
     }
 
     public int getWidth() {
