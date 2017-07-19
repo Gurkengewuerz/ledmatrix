@@ -4,7 +4,8 @@ import de.hochschule_bochum.engine.Clock;
 import de.hochschule_bochum.engine.Direction;
 import de.hochschule_bochum.engine.Game;
 import de.hochschule_bochum.engine.GameStatus;
-import de.hochschule_bochum.ledmatrix.objects.Display;
+import de.hochschule_bochum.server.controller.ButtonState;
+import de.hochschule_bochum.server.controller.Key;
 import de.hochschule_bochum.tetris.objects.TetrisBoard;
 import de.hochschule_bochum.tetris.objects.Tile;
 import de.hochschule_bochum.tetris.objects.TileType;
@@ -13,32 +14,20 @@ import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class Tetris implements Game{
+public class Tetris extends Game {
 
     private int currentX;
     private int currentY;
     private TetrisBoard gameBoard;
     private Tile currentTile;
-    private Clock masterClock;
-    private float tickSpeed;
-    private boolean gameover;
-    private Display display;
-    private GameStatus status;
-
-    public Tetris(Display display, GameStatus status) {
-        this.status = status;
-        this.display = display;
-    }
 
     public void start() {
         reset();
 
-        while (true) {
+        while (!stoped) {
+            if(gameover) break;
 
-            if (gameover && masterClock.isPaused()) {
-                status.setStatus(GameStatus.Status.GAMEOVER);
-                gameBoard.clear();
-            } else if (masterClock.isPaused()) {
+            if (masterClock.isPaused()) {
                 status.setStatus(GameStatus.Status.PAUSE);
             } else {
                 status.setStatus(GameStatus.Status.RUNNING);
@@ -101,20 +90,21 @@ public class Tetris implements Game{
     }
 
     private void spawn() {
+        if(gameover) return;
         Random rnd = new Random();
         currentTile = TileType.values()[rnd.nextInt(TileType.values().length)].getShape();
         currentTile.rotateRandom();
         currentY = 0;
         currentX = 5 - (currentTile.getSize() >> 1);
         if (!gameBoard.isValidAndEmpty(currentTile, currentX, currentY + 1)) {
-            gameover = true;
+            gameover();
             masterClock.pause();
             gameBoard.clear();
             currentTile = null;
         }
     }
 
-    public void move(Direction direction) {
+    private void move(Direction direction) {
         if (direction == Direction.LEFT) {
             if (masterClock.isPaused()) return;
             if (!gameBoard.isValidAndEmpty(currentTile, currentX - 1, currentY)) return;
@@ -126,7 +116,7 @@ public class Tetris implements Game{
         }
     }
 
-    public void rotatePiece(Direction direction) {
+    private void rotatePiece(Direction direction) {
         if (currentTile == null) return;
         int newColumn = currentX;
         int newRow = currentY;
@@ -159,11 +149,55 @@ public class Tetris implements Game{
         }
     }
 
-    public Clock getMasterClock() {
-        return masterClock;
+    @Override
+    public String getName() {
+        return "Tetris";
     }
 
-    public float getTickSpeed() {
-        return tickSpeed;
+    @Override
+    protected void onKey(Key key, ButtonState newState) {
+        switch (key) {
+            case LEFT:
+                if (newState != ButtonState.BUTTON_DOWN) break;
+                move(Direction.LEFT);
+                break;
+
+            case RIGHT:
+                if (newState != ButtonState.BUTTON_DOWN) break;
+                move(Direction.RIGHT);
+                break;
+
+            case UP:
+                if (newState != ButtonState.BUTTON_DOWN) break;
+                rotatePiece(Direction.RIGHT);
+                break;
+
+            case DOWN:
+                if (newState == ButtonState.BUTTON_UP) {
+                    getMasterClock().setTickSpeed(getTickSpeed());
+                } else {
+                    getMasterClock().setTickSpeed(35f);
+                }
+                break;
+
+            case START:
+                if (newState != ButtonState.BUTTON_DOWN) break;
+                if (getMasterClock().isPaused()) {
+                    getMasterClock().start();
+                } else {
+                    getMasterClock().pause();
+                }
+                break;
+
+            case SELECT:
+                if (newState != ButtonState.BUTTON_DOWN) break;
+                stop();
+                break;
+        }
+    }
+
+    @Override
+    public Game newInstance() {
+        return new Tetris();
     }
 }

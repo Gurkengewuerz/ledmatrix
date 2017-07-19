@@ -1,9 +1,95 @@
 package de.hochschule_bochum.engine;
 
+import java.util.ArrayList;
+
 /**
  * Created by nikla on 07.07.2017.
  */
 public class GameStatus {
+    private static ArrayList<Game> gamelist = new ArrayList<>();
+    private Status status = Status.PAUSE;
+    private int highscore = 0;
+    private int level = 1;
+    private int time = 0;
+    private TimerType type = TimerType.NONE;
+    private String usermac;
+
+    public GameStatus(Status status, int highscore, int level, int time, TimerType type) {
+        this.status = status;
+        this.highscore = highscore;
+        this.level = level;
+        this.time = time;
+        this.type = type;
+    }
+
+    public GameStatus() {
+        this(Status.WAIING, 0, 1, 0, TimerType.NONE);
+    }
+
+    public void addGame(Game game) {
+        gamelist.add(game);
+    }
+
+    public Game getGame(String game) {
+        return gamelist.stream().filter(x -> x.getName().equals(game)).findFirst().orElse(null);
+    }
+
+    public ArrayList<Game> getGameList() {
+        return gamelist;
+    }
+
+    public void levelUp() {
+        level++;
+    }
+
+    public void addHighScore(int score) {
+        highscore = highscore + score;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+    public int getHighscore() {
+        return highscore;
+    }
+
+    public int getLevel() {
+        return level;
+    }
+
+    public int getTime() {
+        return time;
+    }
+
+    public void setTime(int time) {
+        this.time = time;
+    }
+
+    public TimerType getType() {
+        return type;
+    }
+
+    public String getUsermac() {
+        return usermac;
+    }
+
+    public void setUsermac(String usermac) {
+        this.usermac = usermac;
+    }
+
+    public void reset(Status resetStatus, TimerType type, int time) {
+        this.status = resetStatus;
+        this.highscore = 0;
+        this.level = 1;
+        this.time = time;
+        this.type = type;
+    }
+
     public static enum Status {
         WAIING,
         PAUSE,
@@ -41,67 +127,5 @@ public class GameStatus {
             }
             return "";
         }
-    }
-
-    private Status status = Status.PAUSE;
-    private int highscore = 0;
-    private int level = 1;
-    private int time = 0;
-    private TimerType type = TimerType.NONE;
-
-    public GameStatus(Status status, int highscore, int level, int time, TimerType type) {
-        this.status = status;
-        this.highscore = highscore;
-        this.level = level;
-        this.time = time;
-        this.type = type;
-    }
-
-    public GameStatus() {
-        this(Status.WAIING, 0, 1, 0, TimerType.NONE);
-    }
-
-    public void setStatus(Status status) {
-        this.status = status;
-    }
-
-    public void setTime(int time) {
-        this.time = time;
-    }
-
-    public void levelUp() {
-        level++;
-    }
-
-    public void addHighScore(int score) {
-        highscore = highscore + score;
-    }
-
-    public Status getStatus() {
-        return status;
-    }
-
-    public int getHighscore() {
-        return highscore;
-    }
-
-    public int getLevel() {
-        return level;
-    }
-
-    public int getTime() {
-        return time;
-    }
-
-    public TimerType getType() {
-        return type;
-    }
-
-    public void reset(Status resetStatus, TimerType type, int time) {
-        this.status = resetStatus;
-        this.highscore = 0;
-        this.level = 1;
-        this.time = time;
-        this.type = type;
     }
 }

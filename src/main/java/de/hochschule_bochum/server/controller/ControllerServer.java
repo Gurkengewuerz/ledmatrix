@@ -1,15 +1,24 @@
 package de.hochschule_bochum.server.controller;
 
+import de.hochschule_bochum.engine.Database;
+import de.hochschule_bochum.engine.Game;
 import de.hochschule_bochum.engine.GameStatus;
+import de.hochschule_bochum.engine.SQLInjectionEscaper;
 import de.hochschule_bochum.server.Callback;
 import de.hochschule_bochum.server.MultiCallback;
 import de.hochschule_bochum.server.bluetooth.BluetoothServer;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.bluetooth.RemoteDevice;
+import java.io.IOException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Created by nikla on 07.07.2017.
@@ -23,13 +32,23 @@ public class ControllerServer {
 
     public ControllerServer(GameStatus gameStatus) {
         btServer = new BluetoothServer("Remote Device");
-        responseHandler = new ResponseHandler();
+        this.gameStatus = gameStatus;
+        responseHandler = new ResponseHandler(gameStatus);
         btServer.startServer(responseHandler, device -> {
             if (disconnectListener != null) disconnectListener.callback(device);
             responseHandler.close();
             btServer.close();
         });
-        this.gameStatus = gameStatus;
+        gameStatus.setUsermac(btServer.getDevice().getBluetoothAddress());
+        try {
+            ResultSet result = Database.db.executeQuery("SELECT COUNT(*) AS rowcount FROM devices WHERE mac = '" + SQLInjectionEscaper.escapeString(gameStatus.getUsermac(), false) + "';");
+            result.next();
+            if (result.getInt("rowcount") == 0)
+                Database.db.executeUpdate("INSERT INTO devices (mac, username) VALUES ('" + SQLInjectionEscaper.escapeString(gameStatus.getUsermac(), false) + "', '" + SQLInjectionEscaper.escapeString(btServer.getDevice().getFriendlyName(true), false) + "');");
+            result.close();
+        } catch (IOException | SQLException e) {
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
+        }
 
         Timer timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
@@ -46,6 +65,14 @@ public class ControllerServer {
 
     public void setOnKeyHoldListener(Callback<Key> keyKeepListener) {
         responseHandler.setOnKeyHoldListener(keyKeepListener);
+    }
+
+    public void setOnUnknownProtocolListener(Callback<String> unknownProtocol) {
+        responseHandler.setOnUnknownProtocolListener(unknownProtocol);
+    }
+
+    public void setOnGameSelected(Callback<Game> gameSelected) {
+        responseHandler.setOnGameSelected(gameSelected);
     }
 
     public void setTickSpeed(float tickSpeed) {
@@ -70,9 +97,11 @@ public class ControllerServer {
         json.put("highscore", status.getHighscore());
         json.put("timertype", status.getType().toString());
         json.put("timer", status.getTime());
+        JSONArray games = new JSONArray();
+        gameStatus.getGameList().forEach(game -> games.put(game.getName()));
+        json.put("games", games);
         btServer.send(json.toString());
     }
-
 
     public class ResponseHandler implements Callback<String> {
 
@@ -81,10 +110,14 @@ public class ControllerServer {
         private HashMap<Key, Long> lastSend = new HashMap<>();
         private MultiCallback<Key, ButtonState> keyChangeListener;
         private Callback<Key> keyKeepListener;
+        private Callback<String> unknownProtocol;
+        private Callback<Game> gameSelected;
         private float tickSpeed;
         private Timer holdTask;
+        private GameStatus status;
 
-        public ResponseHandler() {
+        public ResponseHandler(GameStatus status) {
+            this.status = status;
             holdTask = new Timer(true);
             holdTask.scheduleAtFixedRate(new TimerTask() {
                 @Override
@@ -105,10 +138,22 @@ public class ControllerServer {
         @Override
         public void callback(String response) {
             jsonData = new JSONObject(response);
-            if (!jsonData.has("protocol")) return;
+            if (!jsonData.has("protocol")) {
+                if (unknownProtocol != null) unknownProtocol.callback(response);
+                return;
+            }
             switch (jsonData.getInt("protocol")) {
                 case 1:
-                    parseData();
+                    parseKeyData();
+                    break;
+                case 3:
+                    String game = jsonData.has("game") ? jsonData.getString("game") : "";
+                    Game selectedGame = status.getGame(game);
+                    if (selectedGame == null) return;
+                    if (gameSelected != null) gameSelected.callback(selectedGame.newInstance());
+                    break;
+                default:
+                    if (unknownProtocol != null) unknownProtocol.callback(response);
                     break;
             }
         }
@@ -121,6 +166,14 @@ public class ControllerServer {
             this.keyKeepListener = keyKeepListener;
         }
 
+        public void setOnUnknownProtocolListener(Callback<String> unknownProtocol) {
+            this.unknownProtocol = unknownProtocol;
+        }
+
+        public void setOnGameSelected(Callback<Game> gameSelected) {
+            this.gameSelected = gameSelected;
+        }
+
         public void setTickSpeed(float tickSpeed) {
             this.tickSpeed = tickSpeed;
         }
@@ -129,7 +182,7 @@ public class ControllerServer {
             this.tickSpeed = (1.0f / timesPerSec) * 1000;
         }
 
-        public void parseData() {
+        public void parseKeyData() {
             parsekey("start");
             parsekey("select");
             parsekey("up");

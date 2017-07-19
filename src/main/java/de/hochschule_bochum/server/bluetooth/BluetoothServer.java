@@ -23,9 +23,23 @@ public class BluetoothServer {
     private ReceiveThread receiveThread;
     private SendThread sendThread;
     private boolean connected = false;
+    private RemoteDevice device;
 
     public BluetoothServer(String name) {
         this.name = name;
+    }
+
+    public static void main(String[] args) {
+        BluetoothServer bluetoothServer = new BluetoothServer("HS_BOCHUM");
+        bluetoothServer.startServer(System.out::println, device -> System.out.println(device.getBluetoothAddress() + " disconnected"));
+        while (bluetoothServer.isConnected()) {
+            bluetoothServer.send("New Message!");
+            try {
+                Thread.sleep(1500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public boolean startServer(Callback<String> receiveCallback, Callback<RemoteDevice> disconnectCallback) {
@@ -42,10 +56,10 @@ public class BluetoothServer {
             System.out.println("\nBluetoothServer Started. Waiting for clients to connect...");
             sc = streamConnNotifier.acceptAndOpen();
 
-            RemoteDevice dev = RemoteDevice.getRemoteDevice(sc);
+            device = RemoteDevice.getRemoteDevice(sc);
 
-            System.out.println("Remote device address: " + dev.getBluetoothAddress());
-            System.out.println("Remote device name: " + dev.getFriendlyName(true));
+            System.out.println("Remote device address: " + device.getBluetoothAddress());
+            System.out.println("Remote device name: " + device.getFriendlyName(true));
 
             receiveThread = new ReceiveThread(sc.openInputStream(), receiveCallback);
             receiveThread.start();
@@ -63,7 +77,7 @@ public class BluetoothServer {
                         RemoteDevice.getRemoteDevice(sc);
                     } catch (IOException ignored) {
                         connected = false;
-                        disconnectCallback.callback(dev);
+                        disconnectCallback.callback(device);
                         close();
                         cancel();
                     }
@@ -76,6 +90,10 @@ public class BluetoothServer {
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
             return false;
         }
+    }
+
+    public RemoteDevice getDevice() {
+        return device;
     }
 
     public void close() {
@@ -149,19 +167,6 @@ public class BluetoothServer {
                 buffR.close();
             } catch (IOException e) {
                 Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
-            }
-        }
-    }
-
-    public static void main(String[] args) {
-        BluetoothServer bluetoothServer = new BluetoothServer("HS_BOCHUM");
-        bluetoothServer.startServer(System.out::println, device -> System.out.println(device.getBluetoothAddress() + " disconnected"));
-        while (bluetoothServer.isConnected()) {
-            bluetoothServer.send("New Message!");
-            try {
-                Thread.sleep(1500);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
             }
         }
     }

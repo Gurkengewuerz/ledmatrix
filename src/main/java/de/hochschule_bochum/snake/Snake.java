@@ -4,7 +4,8 @@ import de.hochschule_bochum.engine.Clock;
 import de.hochschule_bochum.engine.Direction;
 import de.hochschule_bochum.engine.Game;
 import de.hochschule_bochum.engine.GameStatus;
-import de.hochschule_bochum.ledmatrix.objects.Display;
+import de.hochschule_bochum.server.controller.ButtonState;
+import de.hochschule_bochum.server.controller.Key;
 import de.hochschule_bochum.snake.objects.SnakeBoard;
 import de.hochschule_bochum.snake.objects.SnakePoint;
 import de.hochschule_bochum.snake.objects.SnakeTile;
@@ -16,35 +17,23 @@ import java.util.logging.Logger;
 /**
  * Created by nikla on 14.07.2017.
  */
-public class Snake implements Game {
+public class Snake extends Game {
 
     private SnakeBoard gameBoard;
-    private Clock masterClock;
-    private float tickSpeed;
-    private boolean gameover;
-    private Display display;
-    private GameStatus status;
     private SnakePoint cherry;
     private SnakeTile snake;
     private Direction direction;
 
-    public Snake(Display display, GameStatus status) {
-        this.status = status;
-        this.display = display;
-    }
-
     public void start() {
         reset();
 
-        while (true) {
-
+        while (!stoped) {
+            if (gameover) break;
             if (masterClock.timeElapsed()) {
                 updateGame();
             }
 
-            if (gameover) {
-                status.setStatus(GameStatus.Status.GAMEOVER);
-            } else if (masterClock.isPaused()) {
+            if (masterClock.isPaused()) {
                 status.setStatus(GameStatus.Status.PAUSE);
             } else {
                 status.setStatus(GameStatus.Status.RUNNING);
@@ -79,22 +68,22 @@ public class Snake implements Game {
             case UP:
                 if (snake.getHead().getY() - 1 > 0 && snake.isValid(snake.getHead().getX(), snake.getHead().getY() - 1)) {
                     snake.setHead(new SnakePoint(snake.getHead().getX(), snake.getHead().getY() - 1));
-                } else gameover = true;
+                } else gameover();
                 break;
             case DOWN:
                 if (snake.getHead().getY() + 1 <= gameBoard.getLength() && snake.isValid(snake.getHead().getX(), snake.getHead().getY() + 1)) {
                     snake.setHead(new SnakePoint(snake.getHead().getX(), snake.getHead().getY() + 1));
-                } else gameover = true;
+                } else gameover();
                 break;
             case LEFT:
                 if (snake.getHead().getX() - 1 > 0 && snake.isValid(snake.getHead().getX() - 1, snake.getHead().getY())) {
                     snake.setHead(new SnakePoint(snake.getHead().getX() - 1, snake.getHead().getY()));
-                } else gameover = true;
+                } else gameover();
                 break;
             case RIGHT:
                 if (snake.getHead().getX() + 1 <= gameBoard.getWidth() && snake.isValid(snake.getHead().getX() + 1, snake.getHead().getY())) {
                     snake.setHead(new SnakePoint(snake.getHead().getX() + 1, snake.getHead().getY()));
-                } else gameover = true;
+                } else gameover();
                 break;
         }
 
@@ -122,15 +111,56 @@ public class Snake implements Game {
         cherry = new SnakePoint(Utils.randInt(1, gameBoard.getWidth()), Utils.randInt(1, gameBoard.getLength()));
     }
 
-    public Clock getMasterClock() {
-        return masterClock;
-    }
-
-    public void move(Direction direction) {
+    private void move(Direction direction) {
         if (this.direction == Direction.DOWN && direction == Direction.UP) return;
         if (this.direction == Direction.UP && direction == Direction.DOWN) return;
         if (this.direction == Direction.LEFT && direction == Direction.RIGHT) return;
         if (this.direction == Direction.RIGHT && direction == Direction.LEFT) return;
         this.direction = direction;
+    }
+
+    @Override
+    public String getName() {
+        return "Snake";
+    }
+
+    @Override
+    protected void onKey(Key key, ButtonState newState) {
+        switch (key) {
+            case LEFT:
+                if (newState != ButtonState.BUTTON_DOWN) break;
+                move(Direction.LEFT);
+                break;
+
+            case RIGHT:
+                if (newState != ButtonState.BUTTON_DOWN) break;
+                move(Direction.RIGHT);
+                break;
+
+            case UP:
+                if (newState != ButtonState.BUTTON_DOWN) break;
+                move(Direction.UP);
+                break;
+
+            case DOWN:
+                if (newState == ButtonState.BUTTON_UP)
+                    move(Direction.DOWN);
+                break;
+
+            case START:
+                if (newState != ButtonState.BUTTON_DOWN) break;
+                pause();
+                break;
+
+            case SELECT:
+                if (newState != ButtonState.BUTTON_DOWN) break;
+                stop();
+                break;
+        }
+    }
+
+    @Override
+    public Game newInstance() {
+        return new Snake();
     }
 }
