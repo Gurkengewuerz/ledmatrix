@@ -13,6 +13,7 @@ public class GameStatus {
     private int time = 0;
     private TimerType type = TimerType.NONE;
     private String usermac;
+    private String username;
 
     public GameStatus(Status status, int highscore, int level, int time, TimerType type) {
         this.status = status;
@@ -70,6 +71,14 @@ public class GameStatus {
         this.time = time;
     }
 
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
     public TimerType getType() {
         return type;
     }
@@ -92,6 +101,7 @@ public class GameStatus {
 
     public static enum Status {
         WAIING,
+        WAIING_GAMEOVER,
         PAUSE,
         GAMEOVER,
         RUNNING;
@@ -106,6 +116,8 @@ public class GameStatus {
                     return "gameover";
                 case RUNNING:
                     return "running";
+                case WAIING_GAMEOVER:
+                    return "waiting_gameover";
             }
             return "";
         }

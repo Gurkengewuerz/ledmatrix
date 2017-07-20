@@ -24,17 +24,11 @@ public abstract class Game {
         this.status = status;
     }
 
-    public void start() {
+    public abstract void start();
 
-    }
+    public abstract void updateGame();
 
-    public void updateGame() {
-
-    }
-
-    public void reset() {
-
-    }
+    public abstract void reset();
 
     public Clock getMasterClock() {
         return masterClock;
@@ -52,9 +46,7 @@ public abstract class Game {
         onKey(key, newState);
     }
 
-    protected void onKey(Key key, ButtonState newState) {
-
-    }
+    protected abstract void onKey(Key key, ButtonState newState);
 
     public void sendHold(Key key) {
         // TODO: set Ticks
@@ -68,18 +60,23 @@ public abstract class Game {
 
     public void stop() {
         stoped = true;
-        status.reset(GameStatus.Status.WAIING, GameStatus.TimerType.NONE, 0);
+        if (status.getStatus() == GameStatus.Status.GAMEOVER)
+            status.reset(GameStatus.Status.WAIING_GAMEOVER, GameStatus.TimerType.NONE, 0);
+        else {
+            status.reset(GameStatus.Status.WAIING, GameStatus.TimerType.NONE, 0);
+        }
     }
 
     protected void gameover() {
         this.gameover = true;
         status.setStatus(GameStatus.Status.GAMEOVER);
-        Database.db.executeQuery("INSERT INTO score (score, user_id, created, game) VALUES (" +
+        Database.db.executeUpdate("INSERT INTO score (score, user_id, created, game) VALUES (" +
                 "'" + SQLInjectionEscaper.escapeString(String.valueOf(status.getHighscore()), false) + "'," +
-                "(SELECT user_id FROM devices WHERE mac = '"+ SQLInjectionEscaper.escapeString(status.getUsermac(), false) +"')," +
+                "(SELECT user_id FROM devices WHERE mac = '" + SQLInjectionEscaper.escapeString(status.getUsermac(), false) + "')," +
                 "'" + SQLInjectionEscaper.escapeString(String.valueOf(System.currentTimeMillis() / 1000), false) + "'," +
                 "'" + SQLInjectionEscaper.escapeString(getName(), false) + "'" +
                 ");");
+        stop();
     }
 
     protected void pause() {
@@ -90,7 +87,5 @@ public abstract class Game {
         }
     }
 
-    public Game newInstance() {
-        return null;
-    }
+    public abstract Game newInstance();
 }

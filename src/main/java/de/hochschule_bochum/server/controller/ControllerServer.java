@@ -143,14 +143,20 @@ public class ControllerServer {
                 return;
             }
             switch (jsonData.getInt("protocol")) {
-                case 1:
+                case 1: // Key Protocol
                     parseKeyData();
                     break;
-                case 3:
+                case 3: // Settings Protocol
                     String game = jsonData.has("game") ? jsonData.getString("game") : "";
                     Game selectedGame = status.getGame(game);
-                    if (selectedGame == null) return;
-                    if (gameSelected != null) gameSelected.callback(selectedGame.newInstance());
+                    if (selectedGame != null && gameSelected != null) gameSelected.callback(selectedGame.newInstance());
+                    String username = jsonData.has("username") ? jsonData.getString("username") : "";
+                    status.setUsername(username);
+                    if (!status.getUsername().equals("")) {
+                        Database.db.executeUpdate("UPDATE devices SET username = '" +
+                                SQLInjectionEscaper.escapeString(status.getUsername(), false) + "' WHERE mac = '" +
+                                SQLInjectionEscaper.escapeString(status.getUsermac(), false) + "';");
+                    }
                     break;
                 default:
                     if (unknownProtocol != null) unknownProtocol.callback(response);

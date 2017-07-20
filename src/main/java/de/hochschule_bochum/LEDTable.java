@@ -6,6 +6,11 @@ import de.hochschule_bochum.ledmatrix.objects.Display;
 import de.hochschule_bochum.server.controller.ControllerServer;
 import de.hochschule_bochum.snake.Snake;
 import de.hochschule_bochum.tetris.Tetris;
+import de.hochschule_bochum.webapi.NanoServer;
+
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Created by nikla on 04.07.2017.
@@ -15,6 +20,15 @@ public class LEDTable {
     public static void main(String[] args) {
         // TODO: Check native libraries
         // TODO: Menu OOP
+        Thread webserver = new Thread(() -> {
+            try {
+                new NanoServer(8081);
+            } catch (IOException e) {
+                Logger.getLogger(NanoServer.class.getName()).log(Level.SEVERE, null, e);
+            }
+        });
+        webserver.start();
+
         Display display = new Display(10, 20, true);
         GameStatus status = new GameStatus();
 
@@ -28,33 +42,38 @@ public class LEDTable {
         while (connected[0]) {
             currentGame[0] = null;
 
-            controller.setOnGameSelected(game -> currentGame[0] = game);
+            controller.setOnGameSelected(game -> {
+                if (currentGame[0] != null) currentGame[0].stop();
+                currentGame[0] = game;
+            });
+
 
             // TODO: Change with await
-            while (currentGame[0] == null) {
+            while (currentGame[0] == null && connected[0]) {
                 // Do nothing
             }
 
+            if (currentGame[0] == null) continue;
             currentGame[0].setDisplay(display);
             currentGame[0].setStatus(status);
 
-            controller.setOnGameSelected(null);
             controller.setOnKeyChangeListener((key, newState) -> {
-                if(currentGame[0] == null) return;
+                if (currentGame[0] == null) return;
                 currentGame[0].sendKey(key, newState);
             });
             controller.setOnKeyHoldListener(key -> {
-                if(currentGame[0] == null) return;
+                if (currentGame[0] == null) return;
                 currentGame[0].sendHold(key);
             });
             controller.setOnDisconnectListener(device -> {
                 connected[0] = false;
-                if(currentGame[0] == null) return;
+                if (currentGame[0] == null) return;
                 currentGame[0].stop();
                 currentGame[0] = null;
             });
 
             currentGame[0].start();
+            display.clear();
         }
         System.exit(1);
     }
