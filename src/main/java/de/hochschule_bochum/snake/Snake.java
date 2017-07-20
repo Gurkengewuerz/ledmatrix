@@ -35,7 +35,7 @@ public class Snake extends Game {
 
             if (masterClock.isPaused()) {
                 status.setStatus(GameStatus.Status.PAUSE);
-            } else {
+            } else if (!gameover) {
                 status.setStatus(GameStatus.Status.RUNNING);
             }
 
