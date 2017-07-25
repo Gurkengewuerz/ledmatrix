@@ -3,7 +3,6 @@ package de.hochschule_bochum.matrixtable.server.controller;
 import de.hochschule_bochum.matrixtable.engine.Database;
 import de.hochschule_bochum.matrixtable.engine.Game;
 import de.hochschule_bochum.matrixtable.engine.GameStatus;
-import de.hochschule_bochum.matrixtable.engine.SQLInjectionEscaper;
 import de.hochschule_bochum.matrixtable.server.Callback;
 import de.hochschule_bochum.matrixtable.server.MultiCallback;
 import de.hochschule_bochum.matrixtable.server.bluetooth.BluetoothServer;
@@ -41,10 +40,10 @@ public class ControllerServer {
         });
         gameStatus.setUsermac(btServer.getDevice().getBluetoothAddress());
         try {
-            ResultSet result = Database.db.executeQuery("SELECT COUNT(*) AS rowcount FROM devices WHERE mac = '" + SQLInjectionEscaper.escapeString(gameStatus.getUsermac(), false) + "';");
+            ResultSet result = Database.db.executeQuery("SELECT COUNT(*) AS rowcount FROM devices WHERE mac = ?;", gameStatus.getUsermac());
             result.next();
             if (result.getInt("rowcount") == 0)
-                Database.db.executeUpdate("INSERT INTO devices (mac, username) VALUES ('" + SQLInjectionEscaper.escapeString(gameStatus.getUsermac(), false) + "', '" + SQLInjectionEscaper.escapeString(btServer.getDevice().getFriendlyName(true), false) + "');");
+                Database.db.executeUpdate("INSERT INTO devices (mac, username) VALUES (?, ?);", gameStatus.getUsermac(), btServer.getDevice().getFriendlyName(true));
             result.close();
         } catch (IOException | SQLException e) {
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
@@ -153,9 +152,7 @@ public class ControllerServer {
                     String username = jsonData.has("username") ? jsonData.getString("username") : "";
                     status.setUsername(username);
                     if (!status.getUsername().equals("")) {
-                        Database.db.executeUpdate("UPDATE devices SET username = '" +
-                                SQLInjectionEscaper.escapeString(status.getUsername(), false) + "' WHERE mac = '" +
-                                SQLInjectionEscaper.escapeString(status.getUsermac(), false) + "';");
+                        Database.db.executeUpdate("UPDATE devices SET username = ? WHERE mac = ?;", status.getUsername(), status.getUsermac());
                     }
                     break;
                 default:

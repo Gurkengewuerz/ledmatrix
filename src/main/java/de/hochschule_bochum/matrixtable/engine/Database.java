@@ -69,9 +69,13 @@ public class Database {
         }
     }
 
-    public boolean executeUpdate(String instruction) {
+    public boolean executeUpdate(String instruction, Object... obj) {
+        PreparedStatement pst = getPreparedStatement(instruction);
         try {
-            statement.executeUpdate(instruction);
+            for (int i = 0; i < obj.length; i++) {
+                pst.setObject(i + 1, obj[i]);
+            }
+            pst.execute();
             return true;
         } catch (SQLException e) {
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
@@ -79,9 +83,13 @@ public class Database {
         }
     }
 
-    public ResultSet executeQuery(String instruction) {
+    public ResultSet executeQuery(String instruction, Object... obj) {
+        PreparedStatement pst = getPreparedStatement(instruction);
         try {
-            return statement.executeQuery(instruction);
+            for (int i = 0; i < obj.length; i++) {
+                pst.setObject(i + 1, obj[i]);
+            }
+            return pst.executeQuery();
         } catch (SQLException e) {
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
             return null;

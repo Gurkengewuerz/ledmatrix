@@ -1,7 +1,6 @@
 package de.hochschule_bochum.matrixtable.webapi;
 
 import de.hochschule_bochum.matrixtable.engine.Database;
-import de.hochschule_bochum.matrixtable.engine.SQLInjectionEscaper;
 import fi.iki.elonen.NanoHTTPD;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -45,10 +44,10 @@ public class NanoServer extends NanoHTTPD {
 
         try {
             if (session.getUri().startsWith("/players")) {
-                String whereclause = "";
+                String playerWhere = "%";
                 if (search != null)
-                    whereclause = "WHERE username = '" + SQLInjectionEscaper.escapeString(search, false) + "'";
-                ResultSet result = Database.db.executeQuery("SELECT score,game,username FROM score s JOIN devices d ON s.user_id = d.user_id " + whereclause + " GROUP BY d.mac ORDER BY s.score DESC;");
+                    playerWhere = "%" + search + "%";
+                ResultSet result = Database.db.executeQuery("SELECT score,game,username FROM score s JOIN devices d ON s.user_id = d.user_id WHERE username LIKE ? GROUP BY d.mac ORDER BY s.score DESC;", playerWhere);
                 if (result == null) return getError(Response.Status.INTERNAL_ERROR);
                 json = new JSONObject();
                 status = Response.Status.OK;
@@ -61,14 +60,14 @@ public class NanoServer extends NanoHTTPD {
                 }
 
             } else {
-                String whereclause = "";
+                String playerWhere = "%";
                 if (search != null)
-                    whereclause = "WHERE username = '" + SQLInjectionEscaper.escapeString(search, false) + "'";
-                if (game != null && whereclause.equals(""))
-                    whereclause = "WHERE game = '" + SQLInjectionEscaper.escapeString(game, false) + "'";
-                if (game != null && !whereclause.equals(""))
-                    whereclause += " AND game = '" + SQLInjectionEscaper.escapeString(game, false) + "'";
-                ResultSet result = Database.db.executeQuery("SELECT score,created,game,username FROM score s JOIN devices d ON s.user_id = d.user_id " + whereclause + " ORDER BY s.score DESC;");
+                    playerWhere = "%" + search + "%";
+
+                String gameWhere = "%";
+                if (game != null)
+                    gameWhere = "%" + game + "%";
+                ResultSet result = Database.db.executeQuery("SELECT score,created,game,username FROM score s JOIN devices d ON s.user_id = d.user_id WHERE username LIKE ? AND game LIKE ? ORDER BY s.score DESC;", playerWhere, gameWhere);
                 if (result == null) return getError(Response.Status.INTERNAL_ERROR);
 
                 json = new JSONObject();

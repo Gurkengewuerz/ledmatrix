@@ -70,12 +70,7 @@ public abstract class Game {
     protected void gameover() {
         this.gameover = true;
         status.setStatus(GameStatus.Status.GAMEOVER);
-        Database.db.executeUpdate("INSERT INTO score (score, user_id, created, game) VALUES (" +
-                "'" + SQLInjectionEscaper.escapeString(String.valueOf(status.getHighscore()), false) + "'," +
-                "(SELECT user_id FROM devices WHERE mac = '" + SQLInjectionEscaper.escapeString(status.getUsermac(), false) + "')," +
-                "'" + SQLInjectionEscaper.escapeString(String.valueOf(System.currentTimeMillis() / 1000), false) + "'," +
-                "'" + SQLInjectionEscaper.escapeString(getName(), false) + "'" +
-                ");");
+        Database.db.executeUpdate("INSERT INTO score (score, user_id, created, game) VALUES (?,(SELECT user_id FROM devices WHERE mac = ?),?,?);", status.getHighscore(), status.getUsermac(), (System.currentTimeMillis() / 1000), getName());
         stop();
     }
 
