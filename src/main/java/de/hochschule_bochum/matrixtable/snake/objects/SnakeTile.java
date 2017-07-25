@@ -1,9 +1,8 @@
 package de.hochschule_bochum.matrixtable.snake.objects;
 
 import de.hochschule_bochum.matrixtable.engine.BoardTile;
-import de.hochschule_bochum.matrixtable.ledmatrix.objects.Color;
-import de.hochschule_bochum.matrixtable.ledmatrix.objects.ColorType;
 
+import java.awt.*;
 import java.util.ArrayList;
 
 /**
@@ -24,7 +23,7 @@ public class SnakeTile implements BoardTile {
 
     @Override
     public Color getColor() {
-        return new Color(ColorType.GREEN);
+        return Color.GREEN;
     }
 
     public ArrayList<SnakePoint> getSnakeParts() {

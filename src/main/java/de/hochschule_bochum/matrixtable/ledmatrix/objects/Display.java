@@ -5,6 +5,7 @@ import com.pi4j.io.spi.impl.SpiDeviceImpl;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.Validate;
 
+import java.awt.*;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -112,25 +113,25 @@ public class Display {
         sendingData = ArrayUtils.add(sendingData, (byte) 0);
         sendingData = ArrayUtils.add(sendingData, (byte) 0);
         for (int y = 1; y <= length; y++) {
-            if(y % 2 == 0) {
+            if (y % 2 == 0) {
                 for (int x = width; x >= 1; x--) {
                     Color color = get(x, y);
                     double brightness = global_brightness;
                     if (color == null) {
-                        color = new Color(ColorType.BLACK);
+                        color = new Color(0, 0, 0);
                         brightness = 0;
                     }
-                    sendingData = ArrayUtils.addAll(sendingData, color.toByteArray(brightness));
+                    sendingData = ArrayUtils.addAll(sendingData, colorToArray(color, brightness));
                 }
             } else {
                 for (int x = 1; x <= width; x++) {
                     Color color = get(x, y);
                     double brightness = global_brightness;
                     if (color == null) {
-                        color = new Color(ColorType.BLACK);
+                        color = new Color(0, 0, 0);
                         brightness = 0;
                     }
-                    sendingData = ArrayUtils.addAll(sendingData, color.toByteArray(brightness));
+                    sendingData = ArrayUtils.addAll(sendingData, colorToArray(color, brightness));
                 }
             }
         }
@@ -149,5 +150,11 @@ public class Display {
         } catch (IOException e) {
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
         }
+    }
+
+    private byte[] colorToArray(Color c, double brightness) {
+        if (brightness < 0 || brightness > 1) throw new IllegalArgumentException("Brightness is not right");
+        byte brightnessByte = (byte) (0xE0 | ((int) (31 * brightness)));
+        return new byte[]{brightnessByte, (byte) c.getBlue(), (byte) c.getGreen(), (byte) c.getRed()};
     }
 }

@@ -1,7 +1,6 @@
 package de.hochschule_bochum.matrixtable.tetris.objects;
 
-import de.hochschule_bochum.matrixtable.ledmatrix.objects.Color;
-import de.hochschule_bochum.matrixtable.ledmatrix.objects.ColorType;
+import java.awt.*;
 
 /**
  * Created by nikla on 04.07.2017.
@@ -19,43 +18,43 @@ public enum TileType {
     public Tile getShape() {
         switch (this) {
             case I:
-                return new Tile(new Color(ColorType.CYAN),
+                return new Tile(Color.CYAN,
                         new int[]{0, 0, 0, 0},
                         new int[]{1, 1, 1, 1},
                         new int[]{0, 0, 0, 0},
                         new int[]{0, 0, 0, 0}
                 );
             case J:
-                return new Tile(new Color(ColorType.BLUE),
+                return new Tile(Color.BLUE,
                         new int[]{1, 0, 0},
                         new int[]{1, 1, 1},
                         new int[]{0, 0, 0}
                 );
             case L:
-                return new Tile(new Color(ColorType.ORANGE),
+                return new Tile(Color.ORANGE,
                         new int[]{0, 0, 1},
                         new int[]{1, 1, 1},
                         new int[]{0, 0, 0}
                 );
             case O:
-                return new Tile(new Color(ColorType.YELLOW),
+                return new Tile(Color.YELLOW,
                         new int[]{1, 1},
                         new int[]{1, 1}
                 );
             case S:
-                return new Tile(new Color(ColorType.RED),
+                return new Tile(Color.RED,
                         new int[]{0, 1, 1},
                         new int[]{1, 1, 0},
                         new int[]{0, 0, 0}
                 );
             case Z:
-                return new Tile(new Color(ColorType.GREEN),
+                return new Tile(Color.GREEN,
                         new int[]{1, 1, 0},
                         new int[]{0, 1, 1},
                         new int[]{0, 0, 0}
                 );
             case T:
-                return new Tile(new Color(ColorType.PURPLE),
+                return new Tile(Color.MAGENTA,
                         new int[]{0, 1, 0},
                         new int[]{1, 1, 1},
                         new int[]{0, 0, 0}

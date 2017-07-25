@@ -1,8 +1,8 @@
 package de.hochschule_bochum.matrixtable.snake.objects;
 
 import de.hochschule_bochum.matrixtable.engine.BoardTile;
-import de.hochschule_bochum.matrixtable.ledmatrix.objects.Color;
-import de.hochschule_bochum.matrixtable.ledmatrix.objects.ColorType;
+
+import java.awt.*;
 
 /**
  * Created by nikla on 14.07.2017.
@@ -30,7 +30,7 @@ public class SnakePoint implements BoardTile{
 
     @Override
     public Color getColor() {
-        return new Color(ColorType.CYAN);
+        return Color.CYAN;
     }
 
     @Override

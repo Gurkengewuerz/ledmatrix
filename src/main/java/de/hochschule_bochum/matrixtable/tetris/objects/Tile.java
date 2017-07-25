@@ -2,9 +2,10 @@ package de.hochschule_bochum.matrixtable.tetris.objects;
 
 import de.hochschule_bochum.matrixtable.engine.BoardTile;
 import de.hochschule_bochum.matrixtable.engine.Direction;
-import de.hochschule_bochum.matrixtable.ledmatrix.objects.Color;
 import de.hochschule_bochum.matrixtable.utils.ArrayUtils;
 import de.hochschule_bochum.matrixtable.utils.Utils;
+
+import java.awt.*;
 
 /**
  * Created by nikla on 04.07.2017.

@@ -1,5 +1,7 @@
 package de.hochschule_bochum.matrixtable.ledmatrix.objects;
 
+import java.awt.*;
+
 /**
  * Created by nikla on 04.07.2017.
  */

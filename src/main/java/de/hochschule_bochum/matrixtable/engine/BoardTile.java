@@ -1,6 +1,6 @@
 package de.hochschule_bochum.matrixtable.engine;
 
-import de.hochschule_bochum.matrixtable.ledmatrix.objects.Color;
+import java.awt.*;
 
 /**
  * Created by nikla on 14.07.2017.

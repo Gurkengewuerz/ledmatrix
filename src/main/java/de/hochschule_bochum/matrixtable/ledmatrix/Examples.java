@@ -1,10 +1,9 @@
 package de.hochschule_bochum.matrixtable.ledmatrix;
 
-import de.hochschule_bochum.matrixtable.ledmatrix.objects.Color;
-import de.hochschule_bochum.matrixtable.ledmatrix.objects.ColorType;
 import de.hochschule_bochum.matrixtable.ledmatrix.objects.Display;
 import de.hochschule_bochum.matrixtable.ledmatrix.objects.SevenSegment;
 
+import java.awt.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -46,34 +45,9 @@ public class Examples {
         }
     }
 
-    public void colorLoop() {
-        Display display = new Display(53, 1);
-        try {
-            while (true) {
-
-                for (ColorType color : ColorType.values()) {
-                    display.setAll(new Color(color));
-
-                    for (double d = 0D; d <= 1D; d += 0.05) {
-                        display.setGlobal_brightness(d);
-                        Thread.sleep(100);
-                    }
-
-                    for (double d = 1D; d >= 0D; d -= 0.05) {
-                        display.setGlobal_brightness(d);
-
-                        Thread.sleep(100);
-                    }
-                }
-            }
-        } catch (InterruptedException e) {
-            Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
-        }
-    }
-
     public void maxCurrent() {
         Display display = new Display(53, 1);
-        display.setAll(new Color((byte)255,(byte)255,(byte)255));
+        display.setAll(Color.WHITE);
         display.setGlobal_brightness(1d);
         try {
             Thread.sleep(5000);
@@ -87,7 +61,7 @@ public class Examples {
         try {
             SevenSegment segement = new SevenSegment();
             for (SevenSegment.Number number : SevenSegment.Number.values()) {
-                segement.setNumber(number, new Color(ColorType.BLUE));
+                segement.setNumber(number, Color.BLUE);
                 Thread.sleep(1000);
             }
         } catch (InterruptedException e) {
