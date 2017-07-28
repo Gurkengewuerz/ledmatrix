@@ -1,11 +1,15 @@
 package de.hochschule_bochum.matrixtable.ledmatrix.objects;
 
 import java.awt.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * Created by nikla on 04.07.2017.
  */
-public class SevenSegment extends Display {
+public class SevenSegment {
+
+    private Display display;
     public enum Number {
         ZERO,
         ONE,
@@ -50,13 +54,15 @@ public class SevenSegment extends Display {
         }
     }
 
-    public SevenSegment() {
-        super(7, 1);
+    public SevenSegment(Class<?> displayClass) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+        Constructor<?> ctor = displayClass.getConstructor(int.class, int.class);
+        display = (Display) ctor.newInstance(7, 1);
     }
 
     public void setNumber(Number num, Color c) {
+        if(display == null) return;
         for (int i = 0; i < num.onOff().length; i++) {
-            set(i + 1, 1, num.onOff()[i] ? c : null);
+            display.set(i + 1, 1, num.onOff()[i] ? c : null);
         }
     }
 

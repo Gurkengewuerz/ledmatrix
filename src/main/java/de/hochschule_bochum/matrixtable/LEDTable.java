@@ -3,6 +3,7 @@ package de.hochschule_bochum.matrixtable;
 import de.hochschule_bochum.matrixtable.engine.Game;
 import de.hochschule_bochum.matrixtable.engine.GameStatus;
 import de.hochschule_bochum.matrixtable.ledmatrix.objects.Display;
+import de.hochschule_bochum.matrixtable.ledmatrix.objects.impl.APA102Impl;
 import de.hochschule_bochum.matrixtable.server.controller.ControllerServer;
 import de.hochschule_bochum.matrixtable.snake.Snake;
 import de.hochschule_bochum.matrixtable.tetris.Tetris;
@@ -29,7 +30,7 @@ public class LEDTable {
         });
         webserver.start();
 
-        Display display = new Display(10, 20, true);
+        Display display = new APA102Impl(10, 20, true);
         GameStatus status = new GameStatus();
 
         status.addGame(new Tetris());

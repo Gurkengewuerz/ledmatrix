@@ -4,6 +4,7 @@ import de.hochschule_bochum.matrixtable.ledmatrix.objects.Display;
 import de.hochschule_bochum.matrixtable.ledmatrix.objects.SevenSegment;
 
 import java.awt.*;
+import java.lang.reflect.InvocationTargetException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -12,8 +13,13 @@ import java.util.logging.Logger;
  */
 public class Examples {
 
+    private Display display;
+
+    public Examples(Display display) {
+        this.display = display;
+    }
+
     public void RGBFade() {
-        Display display = new Display(53, 1);
         int r = 255;
         int g = 0;
         int b = 0;
@@ -33,7 +39,7 @@ public class Examples {
                     b--;
                 }
                 loops--;
-                display.setAll(new Color((byte) r, (byte) g, (byte) b));
+                display.setAll(new Color(r, g, b));
                 try {
                     Thread.sleep(5);
                 } catch (InterruptedException e) {
@@ -46,7 +52,6 @@ public class Examples {
     }
 
     public void maxCurrent() {
-        Display display = new Display(53, 1);
         display.setAll(Color.WHITE);
         display.setGlobal_brightness(1d);
         try {
@@ -59,12 +64,12 @@ public class Examples {
 
     public void sevenSegmentCount() {
         try {
-            SevenSegment segement = new SevenSegment();
+            SevenSegment segement = new SevenSegment(display.getClass());
             for (SevenSegment.Number number : SevenSegment.Number.values()) {
                 segement.setNumber(number, Color.BLUE);
                 Thread.sleep(1000);
             }
-        } catch (InterruptedException e) {
+        } catch (InterruptedException | InstantiationException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
         }
 

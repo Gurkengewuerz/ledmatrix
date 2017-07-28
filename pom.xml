@@ -93,6 +93,11 @@
             <artifactId>nanohttpd</artifactId>
             <version>2.2.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.entrusc</groupId>
+            <artifactId>Pi-WS2812</artifactId>
+            <version>5c2b9ece67</version>
+        </dependency>
     </dependencies>
 
     <build>
