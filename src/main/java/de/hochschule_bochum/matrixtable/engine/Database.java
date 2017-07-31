@@ -8,7 +8,7 @@ import java.util.logging.Logger;
  * Created by nikla on 18.07.2017.
  */
 public class Database {
-    public static Database db = new Database("database.sqlite3");
+    public static Database db;
 
     private String sUrl = null;
     private int iTimeout = 30;
