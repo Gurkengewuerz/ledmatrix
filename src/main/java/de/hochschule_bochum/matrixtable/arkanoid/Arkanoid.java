@@ -23,12 +23,6 @@ public class Arkanoid extends Game {
     private Paddle paddle;
     private Ball ball;
 
-    /*
-    TODO: Fix Ball Glitching between bricks
-    TODO: Fix Ball Glitching at paddle
-
-     */
-
     @Override
     public void start() {
         reset();
@@ -44,7 +38,6 @@ public class Arkanoid extends Game {
 
             updateGame();
 
-            gameBoard.draw(ball, paddle);
             try {
                 Thread.sleep(50);
             } catch (InterruptedException e) {
@@ -58,8 +51,11 @@ public class Arkanoid extends Game {
     public void updateGame() {
         if (masterClock.isPaused()) return;
         if (masterClock.timeElapsed()) {
-            moveBall();
-            check();
+            checkBallHitByPaddle();
+            checkBlockCollision();
+            ball.move();
+            checkBallOutOfBoundsTable();
+            gameBoard.draw(ball, paddle);
         }
     }
 
@@ -71,7 +67,9 @@ public class Arkanoid extends Game {
         masterClock = new Clock(tickSpeed, false);
         gameBoard = new ArkanoidBoard(display);
         paddle = new Paddle(gameBoard.getWidth() / 2, gameBoard.getLength() - 3, 3);
-        ball = new Ball(gameBoard.getWidth() / 2, gameBoard.getLength() - 5, gameBoard.getWidth() - 1, gameBoard.getLength() - 1);
+        ball = new Ball(gameBoard.getWidth() / 2, gameBoard.getLength() - 5);
+        ball.setX(gameBoard.getWidth() / 2);
+        ball.setY(gameBoard.getLength() / 2);
         for (int i = 0; i < gameBoard.getWidth(); i++) {
             for (int height = 0; height < 4; height++) {
                 gameBoard.setTile(new Brick(), i, 1 + height);
@@ -90,53 +88,6 @@ public class Arkanoid extends Game {
             if (paddle.getX() + paddle.getSize() >= gameBoard.getWidth()) return;
             paddle.moveRight();
         }
-    }
-
-    private void moveBall() {
-        ball.move();
-    }
-
-    private void check() {
-        if (ball.getY() == paddle.getY()) gameover(); // Remove for Debug
-
-        if (ball.getY() <= 0 || ball.getY() >= gameBoard.getLength() - 1) {
-            ball.setMoveY(!ball.isMoveY());
-        } else if (paddle.getY() == ball.getNextY() && (ball.getNextX() >= paddle.getX() && ball.getNextX() <= paddle.getX() + paddle.getSize())) {
-            ball.setMoveY(!ball.isMoveY());
-        }
-
-        boolean hit = false;
-        int countCleared = 0;
-        if (gameBoard.getTile(ball.getX(), ball.getNextY()) != null) {
-            gameBoard.setTile(null, ball.getX(), ball.getNextY());
-            hit = true;
-            countCleared++;
-        }
-        if (ball.getX() > 0 && gameBoard.getTile(ball.getX() - 1, ball.getY()) != null) {
-            gameBoard.setTile(null, ball.getX() - 1, ball.getNextY());
-            hit = true;
-            countCleared++;
-        }
-        if (ball.getX() < gameBoard.getWidth() - 1 && gameBoard.getTile(ball.getX() + 1, ball.getY()) != null) {
-            gameBoard.setTile(null, ball.getX() + 1, ball.getY());
-            hit = true;
-            countCleared++;
-        }
-
-
-        if (!hit && gameBoard.getTile(ball.getNextX(), ball.getNextY()) != null) {
-            gameBoard.setTile(null, ball.getNextX(), ball.getNextY());
-            hit = true;
-            countCleared++;
-        }
-        if (hit) {
-            tickSpeed += 0.05f;
-            ball.setMoveY(!ball.isMoveY());
-            status.addHighScore(100 * countCleared);
-        }
-
-        if (ball.getX() <= 0 || ball.getX() >= gameBoard.getWidth() - 1)
-            ball.setMoveX(!ball.isMoveX());
     }
 
     @Override
@@ -177,5 +128,64 @@ public class Arkanoid extends Game {
     @Override
     public String getName() {
         return "Arkanoid";
+    }
+
+    private void checkBallHitByPaddle() {
+        if (ball.getY() + 1 != paddle.getY()) return;
+        if (ball.getX() == paddle.getX()) { // Hit left
+            ball.setIncrementY(-1);
+            ball.setY(paddle.getY() - 1);
+            ball.setIncrementX(Math.max(-1, ball.getIncrementX() - 1));
+        } else if (ball.getX() == paddle.getX() + paddle.getSize() - 1) { // hit right
+            ball.setIncrementY(-1);
+            ball.setY(paddle.getY() - 1);
+            ball.setIncrementX(Math.min(1, ball.getIncrementX() + 1));
+        } else if (ball.getX() > paddle.getX() && ball.getX() < paddle.getX() + paddle.getSize() - 1) {
+            ball.setIncrementY(-1);
+            ball.setIncrementX(0);
+            ball.setY(paddle.getY() - 1);
+        }
+    }
+
+    private void checkBallOutOfBoundsTable() {
+        if (ball.getY() < 0) {
+            ball.setIncrementY(-ball.getIncrementY());
+            ball.setY(1);
+        } else if (ball.getY() > gameBoard.getLength() - 2) {
+            ball.setIncrementY(-ball.getIncrementY());
+            ball.setIncrementX(0);
+            ball.setY(gameBoard.getLength() / 2);
+            ball.setX(gameBoard.getWidth() / 2);
+            gameover();
+        }
+        if (ball.getX() < 0) {
+            ball.setIncrementX(-ball.getIncrementX());
+            ball.setX(1);
+        } else if (ball.getX() > gameBoard.getWidth() - 1) {
+            ball.setIncrementX(-ball.getIncrementX());
+            ball.setX(gameBoard.getWidth() - 2);
+        }
+    }
+
+    private boolean checkBlockCollision() {
+        int ballTop = ball.getY() - 1;
+        int ballBottom = ball.getY() + 1;
+        int ballLeft = ball.getX() - 1;
+        int ballRight = ball.getX() + 1;
+
+        for (int y = 0; y < gameBoard.getLength(); y++) {
+            for (int x = 0; x < gameBoard.getWidth(); x++) {
+                if (gameBoard.getTile(x, y) == null) continue;
+                if (ballBottom >= y && ballTop <= y) {
+                    if (ballRight >= x && ballLeft <= x) {
+                        gameBoard.setTile(null, x, y);
+                        status.addHighScore(100);
+                        ball.setIncrementY(-ball.getIncrementY());
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 }

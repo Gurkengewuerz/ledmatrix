@@ -44,6 +44,8 @@ public abstract class BoardObject<T extends BoardTile> {
     }
 
     public T getTile(int x, int y) {
+        if (x >= getWidth()) return null;
+        if (y >= getLength()) return null;
         return tiles[y][x];
     }
 
