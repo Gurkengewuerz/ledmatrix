@@ -49,16 +49,16 @@ public class SnakeTile implements BoardTile {
         return length;
     }
 
+    public void setLength(int length) {
+        this.length = length;
+    }
+
     public void removeLast() {
         snakeParts.remove(0);
     }
 
     public void move() {
         snakeParts.add(new SnakePoint(head.getX(), head.getY()));
-    }
-
-    public void setLength(int length) {
-        this.length = length;
     }
 
 }

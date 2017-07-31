@@ -25,7 +25,7 @@ public class Tetris extends Game {
         reset();
 
         while (!stoped) {
-            if(gameover) break;
+            if (gameover) break;
 
             if (masterClock.isPaused()) {
                 status.setStatus(GameStatus.Status.PAUSE);
@@ -90,7 +90,7 @@ public class Tetris extends Game {
     }
 
     private void spawn() {
-        if(gameover) return;
+        if (gameover) return;
         Random rnd = new Random();
         currentTile = TileType.values()[rnd.nextInt(TileType.values().length)].getShape();
         currentTile.rotateRandom();

@@ -8,7 +8,7 @@ public enum ButtonState {
     BUTTON_DOWN;
 
     public static ButtonState stateFromBoolean(boolean state) {
-        if(state) return BUTTON_DOWN;
+        if (state) return BUTTON_DOWN;
         return BUTTON_UP;
     }
 }

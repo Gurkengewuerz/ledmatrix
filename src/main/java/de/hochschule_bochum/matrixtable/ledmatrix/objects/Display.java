@@ -9,12 +9,14 @@ public interface Display {
 
     /**
      * Get Y length
+     *
      * @return int Length (Y)
      */
     int getLength();
 
     /**
      * Get X length
+     *
      * @return int Width (X)
      */
     int getWidth();

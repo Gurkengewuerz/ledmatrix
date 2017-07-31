@@ -5,6 +5,9 @@ import de.pi3g.pi.ws2812.WS2812;
 
 import java.awt.*;
 
+/**
+ * Created by nikla on 28.07.2017.
+ */
 public class WS2812Impl implements Display {
 
     /*
@@ -18,6 +21,10 @@ public class WS2812Impl implements Display {
     private double global_brightness;
     private Color[][] display;
     private boolean debug;
+
+    /*
+    Connect to BCM18 (PWM0) -> Physical Pin 12
+     */
 
     public WS2812Impl(int width, int length, boolean debug) {
         this.length = length;

@@ -10,7 +10,7 @@ public class ArrayUtils {
         int[][] ret = new int[N][M];
         for (int r = 0; r < M; r++) {
             for (int c = 0; c < N; c++) {
-                ret[c][M-1-r] = inputArray[r][c];
+                ret[c][M - 1 - r] = inputArray[r][c];
             }
         }
         return ret;

@@ -45,6 +45,11 @@ public class APA102Impl implements Display {
         this(width, length, false);
     }
 
+    public final static void clearConsole() {
+        System.out.print("\033[H\033[2J");
+        System.out.flush();
+    }
+
     public int getLength() {
         return length;
     }
@@ -88,11 +93,6 @@ public class APA102Impl implements Display {
 
     public void clear() {
         setAll(null);
-    }
-
-    public final static void clearConsole() {
-        System.out.print("\033[H\033[2J");
-        System.out.flush();
     }
 
     public void drawAscii() {

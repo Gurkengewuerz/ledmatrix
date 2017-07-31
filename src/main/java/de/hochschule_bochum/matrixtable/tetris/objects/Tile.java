@@ -10,7 +10,7 @@ import java.awt.*;
 /**
  * Created by nikla on 04.07.2017.
  */
-public class Tile implements BoardTile{
+public class Tile implements BoardTile {
     private int size;
     private int[][] shapes;
     private Color c;

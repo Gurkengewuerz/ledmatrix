@@ -7,7 +7,7 @@ import java.awt.*;
 /**
  * Created by nikla on 14.07.2017.
  */
-public class SnakePoint implements BoardTile{
+public class SnakePoint implements BoardTile {
     private int x;
     private int y;
 
@@ -24,7 +24,7 @@ public class SnakePoint implements BoardTile{
         return y;
     }
 
-    public boolean equals(SnakePoint other){
+    public boolean equals(SnakePoint other) {
         return x == other.getX() && y == other.getY();
     }
 

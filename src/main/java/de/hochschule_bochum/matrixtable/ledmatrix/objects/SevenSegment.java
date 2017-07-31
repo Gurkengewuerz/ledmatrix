@@ -10,6 +10,19 @@ import java.lang.reflect.InvocationTargetException;
 public class SevenSegment {
 
     private Display display;
+
+    public SevenSegment(Class<?> displayClass) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+        Constructor<?> ctor = displayClass.getConstructor(int.class, int.class);
+        display = (Display) ctor.newInstance(7, 1);
+    }
+
+    public void setNumber(Number num, Color c) {
+        if (display == null) return;
+        for (int i = 0; i < num.onOff().length; i++) {
+            display.set(i + 1, 1, num.onOff()[i] ? c : null);
+        }
+    }
+
     public enum Number {
         ZERO,
         ONE,
@@ -51,18 +64,6 @@ public class SevenSegment {
                 default:
                     throw new IllegalArgumentException("Unknown Number");
             }
-        }
-    }
-
-    public SevenSegment(Class<?> displayClass) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
-        Constructor<?> ctor = displayClass.getConstructor(int.class, int.class);
-        display = (Display) ctor.newInstance(7, 1);
-    }
-
-    public void setNumber(Number num, Color c) {
-        if(display == null) return;
-        for (int i = 0; i < num.onOff().length; i++) {
-            display.set(i + 1, 1, num.onOff()[i] ? c : null);
         }
     }
 
