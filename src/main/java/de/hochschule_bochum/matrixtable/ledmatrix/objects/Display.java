@@ -1,6 +1,6 @@
 package de.hochschule_bochum.matrixtable.ledmatrix.objects;
 
-import java.awt.*;
+import java.awt.Color;
 
 /**
  * Created by nikla on 28.07.2017.
@@ -32,6 +32,8 @@ public interface Display {
     Color get(int x, int y);
 
     void setAll(Color c);
+
+    void setAll(Color c, boolean update);
 
     void clear();
 

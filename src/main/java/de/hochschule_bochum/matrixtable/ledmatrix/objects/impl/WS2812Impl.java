@@ -3,7 +3,7 @@ package de.hochschule_bochum.matrixtable.ledmatrix.objects.impl;
 import de.hochschule_bochum.matrixtable.ledmatrix.objects.Display;
 import de.pi3g.pi.ws2812.WS2812;
 
-import java.awt.*;
+import java.awt.Color;
 
 /**
  * Created by nikla on 28.07.2017.
@@ -77,12 +77,16 @@ public class WS2812Impl implements Display {
     }
 
     public void setAll(Color c) {
+        setAll(null, true);
+    }
+
+    public void setAll(Color c, boolean update) {
         for (int y = 1; y <= length; y++) {
             for (int x = 1; x <= width; x++) {
                 set(x, y, c, false);
             }
         }
-        update();
+        if (update) update();
     }
 
     public void clear() {

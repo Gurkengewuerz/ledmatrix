@@ -6,7 +6,7 @@ import de.hochschule_bochum.matrixtable.ledmatrix.objects.Display;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.Validate;
 
-import java.awt.*;
+import java.awt.Color;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -83,12 +83,16 @@ public class APA102Impl implements Display {
     }
 
     public void setAll(Color c) {
+        setAll(c, true);
+    }
+
+    public void setAll(Color c, boolean update) {
         for (int y = 1; y <= length; y++) {
             for (int x = 1; x <= width; x++) {
                 set(x, y, c, false);
             }
         }
-        update();
+        if (update) update();
     }
 
     public void clear() {
