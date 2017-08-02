@@ -96,6 +96,7 @@ public class ControllerServer {
         json.put("highscore", status.getHighscore());
         json.put("timertype", status.getType().toString());
         json.put("timer", status.getTime());
+        json.put("api_url", status.getApiURL());
         JSONArray games = new JSONArray();
         gameStatus.getGameList().forEach(game -> games.put(game.getName()));
         json.put("games", games);

@@ -68,6 +68,8 @@ public class LEDTable {
 
         GameStatus status = new GameStatus();
 
+        status.setApiURL(conf.getString("api_address"));
+
         status.addGame(new Tetris());
         status.addGame(new Snake());
         status.addGame(new Arkanoid());

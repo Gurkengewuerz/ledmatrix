@@ -14,6 +14,7 @@ public class GameStatus {
     private TimerType type = TimerType.NONE;
     private String usermac;
     private String username;
+    private String apiURL;
 
     public GameStatus(Status status, int highscore, int level, int time, TimerType type) {
         this.status = status;
@@ -89,6 +90,14 @@ public class GameStatus {
 
     public void setUsermac(String usermac) {
         this.usermac = usermac;
+    }
+
+    public String getApiURL() {
+        return apiURL;
+    }
+
+    public void setApiURL(String apiURL) {
+        this.apiURL = apiURL;
     }
 
     public void reset(Status resetStatus, TimerType type, int time) {
