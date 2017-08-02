@@ -1,4 +1,4 @@
-package de.hochschule_bochum.matrixtable.background.matrix;
+package de.hochschule_bochum.matrixtable.ledmatrix.animations.matrix;
 
 import java.awt.Color;
 import java.util.Random;

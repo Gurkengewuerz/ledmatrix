@@ -1,5 +1,6 @@
-package de.hochschule_bochum.matrixtable.background.matrix;
+package de.hochschule_bochum.matrixtable.ledmatrix.animations.matrix;
 
+import de.hochschule_bochum.matrixtable.ledmatrix.animations.Animation;
 import de.hochschule_bochum.matrixtable.ledmatrix.objects.Display;
 
 import java.awt.Color;
@@ -7,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class MatrixBackground {
+public class MatrixBackground implements Animation {
 
     private Display display;
     private boolean aborted;
@@ -16,7 +17,6 @@ public class MatrixBackground {
     public MatrixBackground(Display display) {
         this.display = display;
         this.lines = new MatrixLine[10];
-        loop();
     }
 
     private void loop() {
@@ -84,7 +84,25 @@ public class MatrixBackground {
         }
     }
 
-    public void abort() {
+    private void abort() {
         aborted = true;
+    }
+
+    // The animation interface implementation
+
+    @Override
+    public Animation newInstance(Display display) {
+        return new MatrixBackground(display);
+    }
+
+    @Override
+    public void start() {
+        aborted = false;
+        loop();
+    }
+
+    @Override
+    public void stop() {
+        abort();
     }
 }
