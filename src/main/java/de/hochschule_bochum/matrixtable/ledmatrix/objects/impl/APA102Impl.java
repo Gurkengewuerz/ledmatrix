@@ -158,4 +158,8 @@ public class APA102Impl implements Display {
         byte brightnessByte = (byte) (0xE0 | ((int) (31 * brightness)));
         return new byte[]{brightnessByte, (byte) c.getBlue(), (byte) c.getGreen(), (byte) c.getRed()};
     }
+
+    public int getLEDCount() {
+        return length * width;
+    }
 }

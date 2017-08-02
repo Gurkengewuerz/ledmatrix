@@ -107,4 +107,8 @@ public class WS2812Impl implements Display {
         }
         WS2812.get().show();
     }
+
+    public int getLEDCount() {
+        return length * width;
+    }
 }
