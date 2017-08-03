@@ -1,7 +1,7 @@
 package de.hochschule_bochum.matrixtable.tetris.objects;
 
-import de.hochschule_bochum.matrixtable.engine.BoardTile;
-import de.hochschule_bochum.matrixtable.engine.Direction;
+import de.hochschule_bochum.matrixtable.engine.board.BoardTile;
+import de.hochschule_bochum.matrixtable.engine.board.Direction;
 import de.hochschule_bochum.matrixtable.utils.ArrayUtils;
 import de.hochschule_bochum.matrixtable.utils.Utils;
 

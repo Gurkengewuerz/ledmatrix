@@ -1,9 +1,9 @@
 package de.hochschule_bochum.matrixtable.snake;
 
-import de.hochschule_bochum.matrixtable.engine.Clock;
-import de.hochschule_bochum.matrixtable.engine.Direction;
-import de.hochschule_bochum.matrixtable.engine.Game;
-import de.hochschule_bochum.matrixtable.engine.GameStatus;
+import de.hochschule_bochum.matrixtable.engine.board.Clock;
+import de.hochschule_bochum.matrixtable.engine.board.Direction;
+import de.hochschule_bochum.matrixtable.engine.game.Game;
+import de.hochschule_bochum.matrixtable.engine.game.GameStatus;
 import de.hochschule_bochum.matrixtable.server.controller.ButtonState;
 import de.hochschule_bochum.matrixtable.server.controller.Key;
 import de.hochschule_bochum.matrixtable.snake.objects.SnakeBoard;

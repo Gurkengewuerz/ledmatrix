@@ -1,7 +1,7 @@
 package de.hochschule_bochum.matrixtable.arkanoid.objects;
 
-import de.hochschule_bochum.matrixtable.engine.BoardObject;
-import de.hochschule_bochum.matrixtable.engine.BoardTile;
+import de.hochschule_bochum.matrixtable.engine.board.BoardObject;
+import de.hochschule_bochum.matrixtable.engine.board.BoardTile;
 import de.hochschule_bochum.matrixtable.ledmatrix.objects.Display;
 
 /**

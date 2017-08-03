@@ -1,8 +1,8 @@
 package de.hochschule_bochum.matrixtable.server.controller;
 
 import de.hochschule_bochum.matrixtable.engine.Database;
-import de.hochschule_bochum.matrixtable.engine.Game;
-import de.hochschule_bochum.matrixtable.engine.GameStatus;
+import de.hochschule_bochum.matrixtable.engine.game.Game;
+import de.hochschule_bochum.matrixtable.engine.game.GameStatus;
 import de.hochschule_bochum.matrixtable.server.Callback;
 import de.hochschule_bochum.matrixtable.server.MultiCallback;
 import de.hochschule_bochum.matrixtable.server.bluetooth.BluetoothServer;

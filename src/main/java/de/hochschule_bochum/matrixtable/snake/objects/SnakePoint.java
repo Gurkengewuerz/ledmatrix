@@ -1,6 +1,6 @@
 package de.hochschule_bochum.matrixtable.snake.objects;
 
-import de.hochschule_bochum.matrixtable.engine.BoardTile;
+import de.hochschule_bochum.matrixtable.engine.board.BoardTile;
 
 import java.awt.*;
 

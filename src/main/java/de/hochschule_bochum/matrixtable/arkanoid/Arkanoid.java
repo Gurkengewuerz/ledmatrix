@@ -4,10 +4,10 @@ import de.hochschule_bochum.matrixtable.arkanoid.objects.ArkanoidBoard;
 import de.hochschule_bochum.matrixtable.arkanoid.objects.Ball;
 import de.hochschule_bochum.matrixtable.arkanoid.objects.Brick;
 import de.hochschule_bochum.matrixtable.arkanoid.objects.Paddle;
-import de.hochschule_bochum.matrixtable.engine.Clock;
-import de.hochschule_bochum.matrixtable.engine.Direction;
-import de.hochschule_bochum.matrixtable.engine.Game;
-import de.hochschule_bochum.matrixtable.engine.GameStatus;
+import de.hochschule_bochum.matrixtable.engine.board.Clock;
+import de.hochschule_bochum.matrixtable.engine.board.Direction;
+import de.hochschule_bochum.matrixtable.engine.game.Game;
+import de.hochschule_bochum.matrixtable.engine.game.GameStatus;
 import de.hochschule_bochum.matrixtable.server.controller.ButtonState;
 import de.hochschule_bochum.matrixtable.server.controller.Key;
 

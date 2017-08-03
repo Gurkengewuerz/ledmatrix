@@ -1,4 +1,4 @@
-package de.hochschule_bochum.matrixtable.engine;
+package de.hochschule_bochum.matrixtable.engine.board;
 
 import java.awt.*;
 
