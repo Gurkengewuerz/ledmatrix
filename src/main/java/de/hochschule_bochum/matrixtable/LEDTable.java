@@ -6,8 +6,8 @@ import de.hochschule_bochum.matrixtable.engine.game.GameStatus;
 import de.hochschule_bochum.matrixtable.ledmatrix.objects.Display;
 import de.hochschule_bochum.matrixtable.ledmatrix.objects.impl.APA102Impl;
 import de.hochschule_bochum.matrixtable.ledmatrix.objects.impl.WS2812Impl;
-import de.hochschule_bochum.matrixtable.server.controller.ControllerServer;
-import de.hochschule_bochum.matrixtable.webapi.NanoServer;
+import de.hochschule_bochum.matrixtable.server.bluetooth.controller.ControllerServer;
+import de.hochschule_bochum.matrixtable.server.webapi.NanoServer;
 
 import java.io.File;
 import java.io.IOException;

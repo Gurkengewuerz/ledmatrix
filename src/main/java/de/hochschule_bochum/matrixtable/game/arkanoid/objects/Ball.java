@@ -1,4 +1,4 @@
-package de.hochschule_bochum.matrixtable.arkanoid.objects;
+package de.hochschule_bochum.matrixtable.game.arkanoid.objects;
 
 import de.hochschule_bochum.matrixtable.engine.board.BoardTile;
 
@@ -37,20 +37,20 @@ public class Ball implements BoardTile {
         this.y = y;
     }
 
-    public void setIncrementX(int incrementX) {
-        this.incrementX = incrementX;
-    }
-
-    public void setIncrementY(int incrementY) {
-        this.incrementY = incrementY;
-    }
-
     public int getIncrementX() {
         return incrementX;
     }
 
+    public void setIncrementX(int incrementX) {
+        this.incrementX = incrementX;
+    }
+
     public int getIncrementY() {
         return incrementY;
+    }
+
+    public void setIncrementY(int incrementY) {
+        this.incrementY = incrementY;
     }
 
     public void move() {

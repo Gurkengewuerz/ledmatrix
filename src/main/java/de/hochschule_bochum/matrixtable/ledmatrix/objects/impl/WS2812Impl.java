@@ -3,7 +3,7 @@ package de.hochschule_bochum.matrixtable.ledmatrix.objects.impl;
 import de.hochschule_bochum.matrixtable.ledmatrix.objects.Display;
 import de.pi3g.pi.ws2812.WS2812;
 
-import java.awt.Color;
+import java.awt.*;
 
 /**
  * Created by nikla on 28.07.2017.

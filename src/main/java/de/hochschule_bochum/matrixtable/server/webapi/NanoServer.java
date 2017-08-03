@@ -1,4 +1,4 @@
-package de.hochschule_bochum.matrixtable.webapi;
+package de.hochschule_bochum.matrixtable.server.webapi;
 
 import de.hochschule_bochum.matrixtable.engine.Database;
 import de.hochschule_bochum.matrixtable.engine.Manager;

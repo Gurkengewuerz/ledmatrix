@@ -41,12 +41,12 @@ public class GameStatus {
         return game;
     }
 
-    public boolean isPlaying() {
-        return game != null;
-    }
-
     public void setGame(Game game) {
         this.game = game;
+    }
+
+    public boolean isPlaying() {
+        return game != null;
     }
 
     public void levelUp() {

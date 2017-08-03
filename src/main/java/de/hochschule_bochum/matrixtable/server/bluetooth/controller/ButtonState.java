@@ -1,4 +1,4 @@
-package de.hochschule_bochum.matrixtable.server.controller;
+package de.hochschule_bochum.matrixtable.server.bluetooth.controller;
 
 /**
  * Created by nikla on 10.07.2017.

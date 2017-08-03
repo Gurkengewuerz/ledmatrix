@@ -1,4 +1,4 @@
-package de.hochschule_bochum.matrixtable.tetris.objects;
+package de.hochschule_bochum.matrixtable.game.tetris.objects;
 
 import de.hochschule_bochum.matrixtable.engine.board.BoardObject;
 import de.hochschule_bochum.matrixtable.ledmatrix.objects.Display;

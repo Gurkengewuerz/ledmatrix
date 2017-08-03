@@ -6,7 +6,7 @@ import de.hochschule_bochum.matrixtable.ledmatrix.objects.Display;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.Validate;
 
-import java.awt.Color;
+import java.awt.*;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;

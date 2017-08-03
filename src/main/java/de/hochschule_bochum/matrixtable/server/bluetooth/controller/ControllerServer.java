@@ -1,4 +1,4 @@
-package de.hochschule_bochum.matrixtable.server.controller;
+package de.hochschule_bochum.matrixtable.server.bluetooth.controller;
 
 import de.hochschule_bochum.matrixtable.engine.Database;
 import de.hochschule_bochum.matrixtable.engine.Manager;

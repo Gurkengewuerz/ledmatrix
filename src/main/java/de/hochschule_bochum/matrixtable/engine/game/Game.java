@@ -3,8 +3,8 @@ package de.hochschule_bochum.matrixtable.engine.game;
 import de.hochschule_bochum.matrixtable.engine.Database;
 import de.hochschule_bochum.matrixtable.engine.board.Clock;
 import de.hochschule_bochum.matrixtable.ledmatrix.objects.Display;
-import de.hochschule_bochum.matrixtable.server.controller.ButtonState;
-import de.hochschule_bochum.matrixtable.server.controller.Key;
+import de.hochschule_bochum.matrixtable.server.bluetooth.controller.ButtonState;
+import de.hochschule_bochum.matrixtable.server.bluetooth.controller.Key;
 
 /**
  * Created by nikla on 15.07.2017.
