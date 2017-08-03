@@ -1,10 +1,15 @@
 package de.hochschule_bochum.matrixtable.webapi;
 
 import de.hochschule_bochum.matrixtable.engine.Database;
+import de.hochschule_bochum.matrixtable.engine.Manager;
+import de.hochschule_bochum.matrixtable.engine.game.GameStatus;
+import de.hochschule_bochum.matrixtable.ledmatrix.animations.Animation;
+import de.hochschule_bochum.matrixtable.ledmatrix.objects.Display;
 import fi.iki.elonen.NanoHTTPD;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.awt.*;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -16,9 +21,13 @@ import java.util.logging.Logger;
  * Created by nikla on 19.07.2017.
  */
 public class NanoServer extends NanoHTTPD {
+    private GameStatus gamestatus;
+    private Display display;
 
-    public NanoServer(int port) throws IOException {
+    public NanoServer(int port, GameStatus gamestatus, Display display) throws IOException {
         super(8081);
+        this.gamestatus = gamestatus;
+        this.display = display;
         start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);
     }
 
@@ -59,6 +68,55 @@ public class NanoServer extends NanoHTTPD {
                     json.put(result.getString("username"), player_best_score);
                 }
 
+            } else if (session.getUri().startsWith("/control")) {
+                if (session.getUri().startsWith("/control/image")) {
+                    if (parms.get("image") != null) {
+
+                    } else {
+                        return getError(Response.Status.BAD_REQUEST);
+                    }
+                } else if (session.getUri().startsWith("/control/set")) {
+                    if (parms.get("brightness") != null) {
+                        try {
+                            double brightness = Double.valueOf(parms.get("brightness"));
+                            if (brightness < 0D && brightness > 1D) return getError(Response.Status.INTERNAL_ERROR);
+                            display.setGlobal_brightness(brightness);
+                            return getError(Response.Status.OK);
+                        } catch (NumberFormatException e) {
+                            return getError(Response.Status.INTERNAL_ERROR);
+                        }
+                    }
+
+                    if (!gamestatus.isPlaying()) {
+                        if (parms.get("animation") != null) {
+                            Animation selectedAnimation = Manager.getAnimations(display).stream().filter(x -> x.getName().equals(parms.get("animation"))).findFirst().orElse(null);
+                            if (selectedAnimation == null) return getError(Response.Status.INTERNAL_ERROR);
+                            if (gamestatus.getAnimation() != null) gamestatus.getAnimation().stop();
+                            gamestatus.setAnimation(selectedAnimation);
+                            new Thread(selectedAnimation::start).start();
+                            return getError(Response.Status.OK);
+                        }
+
+                        if (parms.get("red") != null && parms.get("green") != null && parms.get("blue") != null) {
+                            if (gamestatus.getAnimation() != null) gamestatus.getAnimation().stop();
+                            String redS = parms.getOrDefault("red", "0");
+                            String greenS = parms.getOrDefault("green", "0");
+                            String blueS = parms.getOrDefault("blue", "0");
+
+                            try {
+                                int red = Integer.valueOf(redS);
+                                int green = Integer.valueOf(greenS);
+                                int blue = Integer.valueOf(blueS);
+                                display.setAll(new Color(red, green, blue));
+                            } catch (NumberFormatException e) {
+                                return getError(Response.Status.INTERNAL_ERROR);
+                            }
+                            return getError(Response.Status.OK);
+                        }
+                    }
+                } else {
+                    // INFO
+                }
             } else {
                 String playerWhere = "%";
                 if (search != null)
@@ -104,11 +162,13 @@ public class NanoServer extends NanoHTTPD {
     public Response getError(Response.Status status) {
         switch (status) {
             case INTERNAL_ERROR:
-                return getError(status, "internal server rror");
+                return getError(status, "internal server eror");
             case BAD_REQUEST:
                 return getError(status, "bad request");
             case UNAUTHORIZED:
                 return getError(status, "unauthorized");
+            case OK:
+                return getError(status, "no");
         }
         return getError(status, "unknown error");
     }

@@ -3,7 +3,7 @@ package de.hochschule_bochum.matrixtable.ledmatrix.animations.matrix;
 import de.hochschule_bochum.matrixtable.ledmatrix.animations.Animation;
 import de.hochschule_bochum.matrixtable.ledmatrix.objects.Display;
 
-import java.awt.Color;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -104,5 +104,10 @@ public class MatrixBackground implements Animation {
     @Override
     public void stop() {
         abort();
+    }
+
+    @Override
+    public String getName() {
+        return "Matrix";
     }
 }

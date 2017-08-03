@@ -1,6 +1,6 @@
 package de.hochschule_bochum.matrixtable.ledmatrix.animations.matrix;
 
-import java.awt.Color;
+import java.awt.*;
 import java.util.Random;
 
 public class MatrixLine {
@@ -12,7 +12,7 @@ public class MatrixLine {
 
     public MatrixLine(Random random) {
         this.length = (byte) (random.nextInt(14) + 5);
-        this.fadingOutTiles = (byte) (random.nextInt(2) + 2);
+        this.fadingOutTiles = (byte) (random.nextInt(1) + 2);
 
         int closeWhiteColor = random.nextInt(40) + 180;
         this.firstTileColor = new Color(closeWhiteColor, closeWhiteColor, closeWhiteColor);

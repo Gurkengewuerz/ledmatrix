@@ -98,6 +98,11 @@
             <artifactId>Pi-WS2812</artifactId>
             <version>5c2b9ece67</version>
         </dependency>
+        <dependency>
+            <groupId>org.reflections</groupId>
+            <artifactId>reflections</artifactId>
+            <version>0.9.11</version>
+        </dependency>
     </dependencies>
 
     <build>

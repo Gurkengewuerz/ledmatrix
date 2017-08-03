@@ -35,6 +35,7 @@ public class ScanLine implements Animation {
         while (running) {
             if (forward) {
                 for (int y = 1; y <= display.getLength(); y++) {
+                    if (!running) continue;
                     for (int x = 1; x <= display.getWidth(); x++) {
                         Color color = Color.getHSBColor(colorPerc, saturation, 1.0f);
                         display.set(x, last_y, Color.BLACK, false);
@@ -51,6 +52,7 @@ public class ScanLine implements Animation {
                 }
             } else {
                 for (int y = display.getLength(); y > 0; y--) {
+                    if (!running) continue;
                     for (int x = 1; x <= display.getWidth(); x++) {
                         Color color = Color.getHSBColor(colorPerc, saturation, 1.0f);
                         display.set(x, last_y, Color.BLACK, false);
@@ -84,5 +86,10 @@ public class ScanLine implements Animation {
     @Override
     public void stop() {
         running = false;
+    }
+
+    @Override
+    public String getName() {
+        return "Scan Line";
     }
 }

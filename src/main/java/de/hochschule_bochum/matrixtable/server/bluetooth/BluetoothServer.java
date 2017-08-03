@@ -3,6 +3,7 @@ package de.hochschule_bochum.matrixtable.server.bluetooth;
 import com.intel.bluetooth.BlueCoveImpl;
 import de.hochschule_bochum.matrixtable.server.Callback;
 
+import javax.bluetooth.LocalDevice;
 import javax.bluetooth.RemoteDevice;
 import javax.bluetooth.UUID;
 import javax.microedition.io.Connector;
@@ -44,6 +45,7 @@ public class BluetoothServer {
 
     public boolean startServer(Callback<String> receiveCallback, Callback<RemoteDevice> disconnectCallback) {
         try {
+            LocalDevice.getLocalDevice();
             //Create a UUID for SPP
             UUID uuid = new UUID("2220b4c4b5314002a17fbd180a62cdf5", false);
             //Create the servicve url
@@ -59,7 +61,7 @@ public class BluetoothServer {
             device = RemoteDevice.getRemoteDevice(sc);
 
             System.out.println("Remote device address: " + device.getBluetoothAddress());
-            System.out.println("Remote device name: " + device.getFriendlyName(true));
+            System.out.println("Remote device name: " + device.getFriendlyName(false));
 
             receiveThread = new ReceiveThread(sc.openInputStream(), receiveCallback);
             receiveThread.start();
@@ -103,6 +105,7 @@ public class BluetoothServer {
                 receiveThread.interrupt();
                 sc.close();
                 BlueCoveImpl.shutdown();
+
             } catch (IOException e) {
                 Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
             }
@@ -114,6 +117,7 @@ public class BluetoothServer {
     }
 
     public void send(String msg) {
+        if (sendThread == null) return;
         sendThread.send(msg);
     }
 

@@ -1,6 +1,7 @@
 package de.hochschule_bochum.matrixtable.server.controller;
 
 import de.hochschule_bochum.matrixtable.engine.Database;
+import de.hochschule_bochum.matrixtable.engine.Manager;
 import de.hochschule_bochum.matrixtable.engine.game.Game;
 import de.hochschule_bochum.matrixtable.engine.game.GameStatus;
 import de.hochschule_bochum.matrixtable.server.Callback;
@@ -33,11 +34,12 @@ public class ControllerServer {
         btServer = new BluetoothServer("Remote Device");
         this.gameStatus = gameStatus;
         responseHandler = new ResponseHandler(gameStatus);
-        btServer.startServer(responseHandler, device -> {
+        Callback<RemoteDevice> disconnectHandler = device -> {
             if (disconnectListener != null) disconnectListener.callback(device);
             responseHandler.close();
             btServer.close();
-        });
+        };
+        btServer.startServer(responseHandler, disconnectHandler);
         gameStatus.setUsermac(btServer.getDevice().getBluetoothAddress());
         try {
             ResultSet result = Database.db.executeQuery("SELECT COUNT(*) AS rowcount FROM devices WHERE mac = ?;", gameStatus.getUsermac());
@@ -98,7 +100,7 @@ public class ControllerServer {
         json.put("timer", status.getTime());
         json.put("api_url", status.getApiURL());
         JSONArray games = new JSONArray();
-        gameStatus.getGameList().forEach(game -> games.put(game.getName()));
+        Manager.getGames().forEach(game -> games.put(game.getName()));
         json.put("games", games);
         btServer.send(json.toString());
     }
@@ -148,7 +150,7 @@ public class ControllerServer {
                     break;
                 case 3: // Settings Protocol
                     String game = jsonData.has("game") ? jsonData.getString("game") : "";
-                    Game selectedGame = status.getGame(game);
+                    Game selectedGame = Manager.getGames().stream().filter(x -> x.getName().equals(game)).findFirst().orElse(null);
                     if (selectedGame != null && gameSelected != null) gameSelected.callback(selectedGame.newInstance());
                     String username = jsonData.has("username") ? jsonData.getString("username") : "";
                     status.setUsername(username);

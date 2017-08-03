@@ -1,12 +1,11 @@
 package de.hochschule_bochum.matrixtable.engine.game;
 
-import java.util.ArrayList;
+import de.hochschule_bochum.matrixtable.ledmatrix.animations.Animation;
 
 /**
  * Created by nikla on 07.07.2017.
  */
 public class GameStatus {
-    private static ArrayList<Game> gamelist = new ArrayList<>();
     private Status status = Status.PAUSE;
     private int highscore = 0;
     private int level = 1;
@@ -15,6 +14,8 @@ public class GameStatus {
     private String usermac;
     private String username;
     private String apiURL;
+    private Animation animation;
+    private Game game;
 
     public GameStatus(Status status, int highscore, int level, int time, TimerType type) {
         this.status = status;
@@ -28,16 +29,24 @@ public class GameStatus {
         this(Status.WAIING, 0, 1, 0, TimerType.NONE);
     }
 
-    public void addGame(Game game) {
-        gamelist.add(game);
+    public Animation getAnimation() {
+        return animation;
     }
 
-    public Game getGame(String game) {
-        return gamelist.stream().filter(x -> x.getName().equals(game)).findFirst().orElse(null);
+    public void setAnimation(Animation animation) {
+        this.animation = animation;
     }
 
-    public ArrayList<Game> getGameList() {
-        return gamelist;
+    public Game getGame() {
+        return game;
+    }
+
+    public boolean isPlaying() {
+        return game != null;
+    }
+
+    public void setGame(Game game) {
+        this.game = game;
     }
 
     public void levelUp() {

@@ -69,4 +69,9 @@ public class Telekom implements Animation {
     public void stop() {
         running = false;
     }
+
+    @Override
+    public String getName() {
+        return "Telekom";
+    }
 }

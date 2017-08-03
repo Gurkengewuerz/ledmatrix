@@ -25,11 +25,11 @@ public class Strobe implements Animation {
         running = true;
         display.clear();
         while (running) {
-            if(on) display.setAll(Color.WHITE);
-            if(!on) display.setAll(Color.BLACK);
+            if (on) display.setAll(Color.WHITE);
+            if (!on) display.setAll(Color.BLACK);
             on = !on;
             try {
-                Thread.sleep(15);
+                Thread.sleep(25);
             } catch (InterruptedException e) {
                 Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
             }
@@ -45,5 +45,10 @@ public class Strobe implements Animation {
     @Override
     public void stop() {
         running = false;
+    }
+
+    @Override
+    public String getName() {
+        return "Strobe";
     }
 }

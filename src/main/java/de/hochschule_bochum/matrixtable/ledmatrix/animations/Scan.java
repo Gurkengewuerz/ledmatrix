@@ -37,6 +37,7 @@ public class Scan implements Animation {
             if (forward) {
                 for (int y = 1; y <= display.getLength(); y++) {
                     for (int x = 1; x <= display.getWidth(); x++) {
+                        if (!running) continue;
                         Color color = Color.getHSBColor(colorPerc, saturation, 1.0f);
                         display.set(last_x, last_y, Color.BLACK, false);
                         display.set(x, y, color, true);
@@ -53,6 +54,7 @@ public class Scan implements Animation {
             } else {
                 for (int y = display.getLength(); y > 0; y--) {
                     for (int x = display.getWidth(); x > 0; x--) {
+                        if (!running) continue;
                         Color color = Color.getHSBColor(colorPerc, saturation, 1.0f);
                         display.set(last_x, last_y, Color.BLACK, false);
                         display.set(x, y, color, true);
@@ -85,5 +87,10 @@ public class Scan implements Animation {
     @Override
     public void stop() {
         running = false;
+    }
+
+    @Override
+    public String getName() {
+        return "Scan";
     }
 }

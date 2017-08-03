@@ -29,10 +29,10 @@ public class Gradient implements Animation {
             for (int r = 1; r <= display.getLength(); r++) {
                 for (int c = 1; c <= display.getWidth(); c++) {
                     Color color = Color.getHSBColor((float) (colorPerc + (((float) r / (float) display.getLength()) * 0.25)), saturation, 1f);
-
                     display.set(c, r, color, false); //
                 }
             }
+            if (!running) continue;
             display.update();
             colorPerc += 0.001;
             try {
@@ -52,5 +52,10 @@ public class Gradient implements Animation {
     @Override
     public void stop() {
         running = false;
+    }
+
+    @Override
+    public String getName() {
+        return "Gradient";
     }
 }

@@ -11,5 +11,7 @@ public interface Animation {
 
     void start();
 
+    String getName();
+
     Animation newInstance(Display display);
 }
