@@ -153,7 +153,7 @@ public class NanoServer extends NanoHTTPD {
                     Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
                     return getError(Response.Status.INTERNAL_ERROR);
                 }
-            } else {
+            } else if (session.getUri().startsWith("/highscore")) {
                 String playerWhere = "%";
                 if (search != null)
                     playerWhere = "%" + search + "%";
@@ -180,6 +180,8 @@ public class NanoServer extends NanoHTTPD {
                         json.put(result.getString("game"), gameobj);
                     }
                 }
+            } else {
+                return newFixedLengthResponse(Response.Status.OK, "text/html", "<meta http-equiv='refresh' content='0; url=/static/' />");
             }
         } catch (SQLException e) {
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
