@@ -60,6 +60,6 @@ public class Ball implements BoardTile {
 
     @Override
     public Color getColor() {
-        return Color.RED;
+        return Color.CYAN;
     }
 }

@@ -63,7 +63,7 @@ public class Arkanoid extends Game {
     public void reset() {
         if (display == null) throw new NullPointerException("Display is not set.");
         gameover = false;
-        tickSpeed = 2.5f;
+        tickSpeed = 4.5f;
         masterClock = new Clock(tickSpeed, false);
         gameBoard = new ArkanoidBoard(display);
         paddle = new Paddle(gameBoard.getWidth() / 2, gameBoard.getLength() - 3, 3);
@@ -135,11 +135,11 @@ public class Arkanoid extends Game {
         if (ball.getX() == paddle.getX()) { // Hit left
             ball.setIncrementY(-1);
             ball.setY(paddle.getY() - 1);
-            ball.setIncrementX(Math.max(-1, ball.getIncrementX() - 1));
+            ball.setIncrementX(-1);
         } else if (ball.getX() == paddle.getX() + paddle.getSize() - 1) { // hit right
             ball.setIncrementY(-1);
             ball.setY(paddle.getY() - 1);
-            ball.setIncrementX(Math.min(1, ball.getIncrementX() + 1));
+            ball.setIncrementX(1);
         } else if (ball.getX() > paddle.getX() && ball.getX() < paddle.getX() + paddle.getSize() - 1) {
             ball.setIncrementY(-1);
             ball.setIncrementX(0);
@@ -173,19 +173,60 @@ public class Arkanoid extends Game {
         int ballLeft = ball.getX() - 1;
         int ballRight = ball.getX() + 1;
 
-        for (int y = 0; y < gameBoard.getLength(); y++) {
-            for (int x = 0; x < gameBoard.getWidth(); x++) {
-                if (gameBoard.getTile(x, y) == null) continue;
-                if (ballBottom >= y && ballTop <= y) {
-                    if (ballRight >= x && ballLeft <= x) {
-                        gameBoard.setTile(null, x, y);
-                        status.addHighScore(100);
-                        ball.setIncrementY(-ball.getIncrementY());
-                        return true;
-                    }
-                }
-            }
+        int hit = 0;
+
+        if (ballTop > 0
+                && gameBoard.getTile(ball.getX(), ballTop) != null) {
+            gameBoard.setTile(null, ball.getX(), ballTop);
+            hit++;
+        } else if (ballLeft > 0 && ballTop > 0
+                && ball.getIncrementX() != 0
+                && gameBoard.getTile(ballLeft, ballTop) != null) {
+            gameBoard.setTile(null, ballLeft, ballTop);
+            hit++;
+        } else if (ballRight <= display.getWidth() && ballTop > 0
+                && ball.getIncrementX() != 0
+                && gameBoard.getTile(ballRight, ballTop) != null) {
+            gameBoard.setTile(null, ballRight, ballTop);
+            hit++;
         }
-        return false;
+
+        if (ballBottom <= display.getLength()
+                && gameBoard.getTile(ball.getX(), ballBottom) != null) {
+            gameBoard.setTile(null, ball.getX(), ballBottom);
+            hit++;
+        } else if (ballLeft > 0 && ballBottom <= display.getLength()
+                && ball.getIncrementX() != 0
+                && gameBoard.getTile(ballLeft, ballBottom) != null) {
+            gameBoard.setTile(null, ballLeft, ballBottom);
+            hit++;
+        } else if (ballRight <= display.getWidth() && ballBottom <= display.getLength()
+                && ball.getIncrementX() != 0
+                && gameBoard.getTile(ballRight, ballBottom) != null) {
+            gameBoard.setTile(null, ballRight, ballBottom);
+            hit++;
+        }
+
+        if (ballLeft > 0
+                && ball.getIncrementX() != 0
+                && gameBoard.getTile(ballLeft, ball.getY()) != null) {
+            gameBoard.setTile(null, ballLeft, ball.getY());
+            hit++;
+        }
+
+        if (ballRight <= display.getWidth()
+                && ball.getIncrementX() != 0
+                && gameBoard.getTile(ballRight, ball.getY()) != null) {
+            gameBoard.setTile(null, ballRight, ball.getY());
+            hit++;
+        }
+
+
+        if (hit > 0) {
+            status.addHighScore(hit * 100);
+            ball.setIncrementY(-ball.getIncrementY());
+        }
+
+        return hit > 0;
     }
 }
