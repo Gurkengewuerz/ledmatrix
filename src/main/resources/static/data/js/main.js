@@ -180,6 +180,35 @@ function create() {
             console.log(rgb);
             console.log(vals.r + " " + vals.g + " " + vals.b);
         }
+
+        function touchStatus() {
+            var d3this = d3.touches(this);
+
+            last_element_clicked = d3this;
+
+            var rgb = this.getAttribute('fill');
+            var vals = hexToRgb(rgb);
+
+            $.ajax({
+                url: "/control/set",
+                type: "post",
+                data: {
+                    red: vals.r,
+                    green: vals.g,
+                    blue: vals.b
+                },
+                success: function (response, status) {
+                    // alert("Data: " + response + "\nStatus: " + status);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.log(textStatus, errorThrown);
+                }
+            });
+
+            // set the color preview and input field with the RGB value
+            console.log(rgb);
+            console.log(vals.r + " " + vals.g + " " + vals.b);
+        }
     }
     apply_mask(lastmasktype);
 }
