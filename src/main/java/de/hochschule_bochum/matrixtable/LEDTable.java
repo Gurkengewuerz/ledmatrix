@@ -56,6 +56,8 @@ public class LEDTable {
 
         // TODO: Check native libraries
         // TODO: Menu OOP
+        // TODO: HTML: OnTouch für Smartphone
+        // TODO: Verschieben von /static nach /
         Thread webserver = new Thread(() -> {
             try {
                 new NanoServer(conf.getInt("api_port"), status, display);

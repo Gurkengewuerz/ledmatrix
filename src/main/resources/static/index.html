@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LED Table</title>
+    <script src="http://code.jquery.com/jquery-3.2.1.min.js"
+            integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+            crossorigin="anonymous"></script>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+            crossorigin="anonymous"></script>
+    <script type="text/javascript" src="data/js/vendor/d3.js"></script>
+    <script type="text/javascript" src="data/js/RXB.js"></script>
+    <script type="text/javascript" src="data/js/main.js"></script>
+    <link rel="stylesheet" type="text/css" href="data/style.css">
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <div class="col-sm-10 col-sm-offset-1 hid">
+            <div class="row">
+                <div class="col-sm-6 col-sm-offset-3 text-center">
+                    <div id="picker">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-10 col-sm-offset-1 hid">
+            <div class="row">
+                <div class="col-sm-6 col-sm-offset-3 text-center">
+                    <div class="range">
+                        <input type="range" name="range" id="brightness" min="0" max="100" value="50"
+                               onchange="range.value=value">
+                        <output id="range">50</output>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row" style="margin-top: 5px">
+        <div class="col-sm-10 col-sm-offset-1 hid">
+            <div class="row">
+                <div class="col-sm-6 col-sm-offset-3 text-center">
+                    <div class="list-group" id="animationList">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $.ajax({
+            url: "/control/info",
+            type: "get",
+            success: function (response, status) {
+                var jsonData = jQuery.parseJSON(JSON.stringify(response));
+                $("#brightness").val(jsonData.brightness * 100);
+                $("#range").val(jsonData.brightness * 100);
+                console.log(jsonData.brightness);
+
+                $.each(jsonData.animations, function (index, value) {
+                    $("#animationList").append('<a href="#" dataVal="' + value + '" class="list-group-item animation">' + value + '</a>');
+                    console.log(value);
+                });
+
+                $('a.animation').click(function () {
+                    var val = $(this).attr("dataVal");
+
+                    $.ajax({
+                        url: "/control/set",
+                        type: "post",
+                        data: {
+                            animation: val
+                        },
+                        success: function (response, status) {
+//                alert("Data: " + response + "\nStatus: " + status);
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            console.log(textStatus, errorThrown);
+                        }
+                    });
+                });
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log(textStatus, errorThrown);
+            }
+        });
+
+        // https://bootsnipp.com/snippets/featured/stylish-range-selectors
+        $(document).on('input', '#brightness', function () {
+            var brightness = $(this).val();
+            var brightnessPerc = brightness / 100;
+            console.log(brightness + " => " + brightnessPerc);
+
+            $.ajax({
+                url: "/control/set",
+                type: "post",
+                data: {
+                    brightness: brightnessPerc
+                },
+                success: function (response, status) {
+//                alert("Data: " + response + "\nStatus: " + status);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.log(textStatus, errorThrown);
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>
