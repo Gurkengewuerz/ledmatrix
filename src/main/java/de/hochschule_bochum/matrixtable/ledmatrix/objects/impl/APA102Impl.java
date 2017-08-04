@@ -147,6 +147,7 @@ public class APA102Impl implements Display {
 
         if (spi != null) spi.write(sendingData);
         if (spi == null || debug) drawAscii();
+        if (spi != null) spi.write(sendingData);
     }
 
     public void update() {
