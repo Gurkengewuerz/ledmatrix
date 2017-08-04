@@ -10,10 +10,14 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.awt.*;
+import java.io.File;
 import java.io.IOException;
+import java.net.URL;
+import java.nio.file.Files;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -115,7 +119,39 @@ public class NanoServer extends NanoHTTPD {
                         }
                     }
                 } else {
-                    // INFO
+                    json = new JSONObject();
+                    status = Response.Status.OK;
+
+                    json.put("brightness", display.getGlobalBrightness());
+                    JSONArray animations = new JSONArray();
+                    Manager.getAnimations(display).stream()
+                            .map(Animation::getName)
+                            .forEach(animations::put);
+                    json.put("animations", animations);
+
+                    JSONObject color = new JSONObject();
+                    Color c = display.get(1, 1);
+                    if (c == null) c = Color.BLACK;
+                    color.put("red", c.getRed());
+                    color.put("green", c.getGreen());
+                    color.put("blue", c.getBlue());
+                    json.put("color", color);
+                }
+            } else if (session.getUri().startsWith("/static")) {
+                String[] allowedIndex = new String[]{"index.html"};
+                String path = session.getUri().substring(1);
+                File f = getResource(path);
+                if (f == null || f.isDirectory()) {
+                    for (String index : allowedIndex) {
+                        f = getResource(path + File.separator + index);
+                    }
+                }
+                if (f == null) return getError(Response.Status.NOT_FOUND);
+                try {
+                    return newFixedLengthResponse(Response.Status.OK, Files.probeContentType(f.toPath()), readFile(f));
+                } catch (IOException e) {
+                    Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
+                    return getError(Response.Status.INTERNAL_ERROR);
                 }
             } else {
                 String playerWhere = "%";
@@ -171,5 +207,27 @@ public class NanoServer extends NanoHTTPD {
                 return getError(status, "no");
         }
         return getError(status, "unknown error");
+    }
+
+    public File getResource(String path) {
+        URL url = NanoServer.class.getClassLoader().getResource(path);
+        return new File(url.getFile());
+    }
+
+    static String readFile(File file) {
+        StringBuilder result = new StringBuilder("");
+        try (Scanner scanner = new Scanner(file)) {
+
+            while (scanner.hasNextLine()) {
+                String line = scanner.nextLine();
+                result.append(line).append("\n");
+            }
+
+            scanner.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return result.toString();
     }
 }
