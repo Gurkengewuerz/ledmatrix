@@ -4,6 +4,7 @@ import de.hochschule_bochum.matrixtable.engine.Database;
 import de.hochschule_bochum.matrixtable.engine.Manager;
 import de.hochschule_bochum.matrixtable.engine.game.GameStatus;
 import de.hochschule_bochum.matrixtable.ledmatrix.animations.Animation;
+import de.hochschule_bochum.matrixtable.ledmatrix.animations.font.ScrollText;
 import de.hochschule_bochum.matrixtable.ledmatrix.objects.Display;
 import fi.iki.elonen.NanoHTTPD;
 import org.json.JSONArray;
@@ -102,7 +103,8 @@ public class NanoServer extends NanoHTTPD {
                         }
 
                         if (parms.get("red") != null && parms.get("green") != null && parms.get("blue") != null) {
-                            if (gamestatus.getAnimation() != null) gamestatus.getAnimation().stop();
+                            if (gamestatus.getAnimation() != null && !(gamestatus.getAnimation() instanceof ScrollText))
+                                gamestatus.getAnimation().stop();
                             String redS = parms.getOrDefault("red", "0");
                             String greenS = parms.getOrDefault("green", "0");
                             String blueS = parms.getOrDefault("blue", "0");
@@ -111,11 +113,40 @@ public class NanoServer extends NanoHTTPD {
                                 int red = Integer.valueOf(redS);
                                 int green = Integer.valueOf(greenS);
                                 int blue = Integer.valueOf(blueS);
-                                display.setAll(new Color(red, green, blue));
+                                Color newColor = new Color(red, green, blue);
+
+                                if (gamestatus.getAnimation() != null && gamestatus.getAnimation() instanceof ScrollText) {
+                                    ScrollText scrollText = (ScrollText) gamestatus.getAnimation();
+                                    scrollText.setColor(newColor);
+                                } else display.setAll(newColor);
                             } catch (NumberFormatException e) {
                                 return getError(Response.Status.INTERNAL_ERROR);
                             }
                             return getError(Response.Status.OK);
+                        }
+
+                        if (parms.get("text") != null) {
+                            if (gamestatus.getAnimation() == null) return getError(Response.Status.OK);
+                            Animation animation = gamestatus.getAnimation();
+                            if (!(animation instanceof ScrollText)) return getError(Response.Status.OK);
+                            ScrollText scrollText = (ScrollText) animation;
+                            scrollText.setText(parms.get("text"));
+                            return getError(Response.Status.OK);
+                        }
+
+                        if (parms.get("text_speed") != null) {
+                            try {
+                                double text_speed = Double.valueOf(parms.get("text_speed"));
+                                if (text_speed < 0D && text_speed > 1D) return getError(Response.Status.INTERNAL_ERROR);
+                                if (gamestatus.getAnimation() == null) return getError(Response.Status.OK);
+                                Animation animation = gamestatus.getAnimation();
+                                if (!(animation instanceof ScrollText)) return getError(Response.Status.OK);
+                                ScrollText scrollText = (ScrollText) animation;
+                                scrollText.setSpeed(text_speed);
+                                return getError(Response.Status.OK);
+                            } catch (NumberFormatException e) {
+                                return getError(Response.Status.INTERNAL_ERROR);
+                            }
                         }
                     }
                 } else {

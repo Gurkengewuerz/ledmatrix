@@ -20,36 +20,57 @@
 <body>
 <div class="container">
     <div class="row">
-        <div class="col-sm-10 col-sm-offset-1 hid">
-            <div class="row">
-                <div class="col-sm-6 col-sm-offset-3 text-center">
-                    <div id="picker">
-                    </div>
-                </div>
-            </div>
+        <div class="col-sm-8">
+            <h1>LED-Matrix-Control</h1>
+        </div>
+        <div class="col-sm-4">
         </div>
     </div>
     <div class="row">
-        <div class="col-sm-10 col-sm-offset-1 hid">
-            <div class="row">
-                <div class="col-sm-6 col-sm-offset-3 text-center">
-                    <div class="range">
-                        <input type="range" name="range" id="brightness" min="0" max="100" value="50"
-                               onchange="range.value=value">
-                        <output id="range">50</output>
-                    </div>
+        <div class="col-sm-8">
+            <h2>Color Picker</h2>
+            <div class="col-sm-6 col-sm-offset-3 text-center">
+                <div id="picker">
                 </div>
             </div>
         </div>
-    </div>
-    <div class="row" style="margin-top: 5px">
-        <div class="col-sm-10 col-sm-offset-1 hid">
-            <div class="row">
-                <div class="col-sm-6 col-sm-offset-3 text-center">
-                    <div class="list-group" id="animationList">
-                    </div>
-                </div>
+        <div class="col-sm-4">
+            <h2>Animations</h2>
+            <div class="list-group" id="animationList">
             </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-8">
+            <h2>Brightness</h2>
+            <div class="range">
+                <input type="range" name="range" id="brightness" min="0" max="100" value="50"
+                       onchange="range.value=value">
+                <output id="range">50</output>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <h2>Scroll-Text</h2>
+            <div class="input-group">
+                <input class="form-control" id="scrollTextText" placeholder="Ich bin ein Lauftext!"/>
+                <span class="input-group-btn">
+                   <button class="btn btn-secondary" id="scrollTextBTN" type="button">O.K.</button>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-8">
+            <h2>Text-Speed</h2>
+            <div class="range">
+                <input type="range" name="rangeT" id="text_speed" min="0" max="100" value="50"
+                       onchange="rangeT.value=value">
+                <output id="rangeT">50</output>
+            </div>
+        </div>
+        <div class="col-sm-4">
         </div>
     </div>
 </div>
@@ -90,6 +111,44 @@
             error: function (jqXHR, textStatus, errorThrown) {
                 console.log(textStatus, errorThrown);
             }
+        });
+
+        $("#scrollTextBTN").click(function () {
+            var text = $("#scrollTextText").val();
+            $.ajax({
+                url: "/control/set",
+                type: "post",
+                data: {
+                    text: text
+                },
+                success: function (response, status) {
+//                alert("Data: " + response + "\nStatus: " + status);
+                    $("#scrollTextText").val("");
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.log(textStatus, errorThrown);
+                }
+            });
+        });
+
+        $(document).on('input', '#text_speed', function () {
+            var speed = $(this).val();
+            var speedPerc = speed / 100;
+            console.log(speed + " => " + speedPerc);
+
+            $.ajax({
+                url: "/control/set",
+                type: "post",
+                data: {
+                    text_speed: speedPerc
+                },
+                success: function (response, status) {
+//                alert("Data: " + response + "\nStatus: " + status);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.log(textStatus, errorThrown);
+                }
+            });
         });
 
         // https://bootsnipp.com/snippets/featured/stylish-range-selectors
