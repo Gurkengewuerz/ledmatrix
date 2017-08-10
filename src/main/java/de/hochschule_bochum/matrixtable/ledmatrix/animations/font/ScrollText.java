@@ -12,12 +12,12 @@ import java.util.logging.Logger;
  */
 public class ScrollText implements Animation {
 
-    private boolean running = false;
-    private Display display;
-    private Text text;
-    private double speed;
-    private Color color;
-    private String newText = "";
+    protected boolean running = false;
+    protected Display display;
+    protected Text text;
+    protected double speed;
+    protected Color color;
+    protected String newText = "";
 
     public ScrollText(Display display) {
         this(display, Color.ORANGE, "");
