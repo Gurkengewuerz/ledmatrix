@@ -19,13 +19,17 @@ public class Clock extends ScrollText {
         super(display, color, textS);
     }
 
+    public void setText() {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+        Date date = new Date(System.currentTimeMillis());
+        text = new Text(sdf.format(date) + " Uhr");
+    }
+
     @Override
     public void start() {
         running = true;
         while (running) {
-            SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm");
-            Date date = new Date(System.currentTimeMillis());
-            text = new Text(sdf.format(date) + " Uhr");
+            setText();
             for (int length = -5; length < text.getTextLength(); length++) {
                 if (!running) break;
                 int[][] data = text.scroll(display.getWidth(), display.getLength(), length);
@@ -40,7 +44,10 @@ public class Clock extends ScrollText {
                 }
                 if (!running) break;
                 display.update();
-                if (length == text.getTextLength() - 1) length = -display.getWidth();
+                if (length == text.getTextLength() - 1) {
+                    setText();
+                    length = -display.getWidth();
+                }
                 try {
                     Thread.sleep((long) (15 * (100 - speed * 100)));
                 } catch (InterruptedException e) {
