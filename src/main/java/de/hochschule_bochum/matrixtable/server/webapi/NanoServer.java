@@ -11,10 +11,9 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.awt.*;
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.nio.file.Files;
+import java.io.*;
+import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
@@ -171,15 +170,12 @@ public class NanoServer extends NanoHTTPD {
             } else if (session.getUri().startsWith("/static")) {
                 String[] allowedIndex = new String[]{"index.html"};
                 String path = session.getUri().substring(1);
-                File f = getResource(path);
-                if (f == null || f.isDirectory()) {
-                    for (String index : allowedIndex) {
-                        f = getResource(path + File.separator + index);
-                    }
-                }
-                if (f == null) return getError(Response.Status.NOT_FOUND);
+                if (path.endsWith("/") || !path.contains("."))
+                    path = path + (path.endsWith("/") ? "" : File.separator) + allowedIndex[0];
+                InputStream is = getResource(path);
+                if (is == null) return getError(Response.Status.NOT_FOUND);
                 try {
-                    return newFixedLengthResponse(Response.Status.OK, Files.probeContentType(f.toPath()), readFile(f));
+                    return newFixedLengthResponse(Response.Status.OK, URLConnection.guessContentTypeFromStream(is), readStream(is));
                 } catch (IOException e) {
                     Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
                     return getError(Response.Status.INTERNAL_ERROR);
@@ -238,13 +234,29 @@ public class NanoServer extends NanoHTTPD {
                 return getError(status, "unauthorized");
             case OK:
                 return getError(status, "no");
+            case NOT_FOUND:
+                return getError(status, "file not Found");
         }
         return getError(status, "unknown error");
     }
 
-    public File getResource(String path) {
-        URL url = NanoServer.class.getClassLoader().getResource(path);
-        return new File(url.getFile());
+    public InputStream getResource(String path) {
+        InputStream is = NanoServer.class.getClassLoader().getResourceAsStream(path);
+        return is;
+    }
+
+    static String readStream(InputStream is) {
+        BufferedReader in = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
+        String readLine;
+        StringBuilder lines = new StringBuilder();
+        try {
+            while ((readLine = in.readLine()) != null) {
+                lines.append(readLine).append("\n");
+            }
+        } catch (IOException e) {
+            Logger.getLogger(NanoServer.class.getName()).log(Level.SEVERE, null, e);
+        }
+        return lines.toString();
     }
 
     static String readFile(File file) {
@@ -259,7 +271,7 @@ public class NanoServer extends NanoHTTPD {
             scanner.close();
 
         } catch (IOException e) {
-            e.printStackTrace();
+            Logger.getLogger(NanoServer.class.getName()).log(Level.SEVERE, null, e);
         }
         return result.toString();
     }
