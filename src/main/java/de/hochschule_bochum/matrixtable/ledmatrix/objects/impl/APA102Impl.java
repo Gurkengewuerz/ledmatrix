@@ -19,6 +19,7 @@ public class APA102Impl implements Display {
     private int length;
     private int width;
     private double global_brightness;
+    private double max_brightness;
     private SpiDeviceImpl spi;
     private Color[][] display;
     private boolean debug;
@@ -37,6 +38,7 @@ public class APA102Impl implements Display {
         }
 
         global_brightness = 0.5;
+        max_brightness = 1;
         display = new Color[length][width];
         clear();
     }
@@ -160,11 +162,16 @@ public class APA102Impl implements Display {
 
     private byte[] colorToArray(Color c, double brightness) {
         if (brightness < 0 || brightness > 1) throw new IllegalArgumentException("Brightness is not right");
-        byte brightnessByte = (byte) (0xE0 | ((int) (31 * brightness)));
+        double newBrightness = max_brightness * brightness;
+        byte brightnessByte = (byte) (0xE0 | ((int) (31 * newBrightness)));
         return new byte[]{brightnessByte, (byte) c.getBlue(), (byte) c.getGreen(), (byte) c.getRed()};
     }
 
     public int getLEDCount() {
         return length * width;
+    }
+
+    public void setMaxBrightness(double max_brightness) {
+        this.max_brightness = max_brightness;
     }
 }

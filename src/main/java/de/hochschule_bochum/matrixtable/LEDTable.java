@@ -36,6 +36,11 @@ public class LEDTable {
 
         if (conf.isFirstRun()) System.exit(0);
 
+        if(!(conf.getDouble("max_brightness") > 0D && conf.getDouble("max_brightness") <= 1D)) {
+            Logger.getLogger(LEDTable.class.getName()).log(Level.SEVERE, "max_brightness Entry is invalid!");
+            System.exit(0);
+        }
+
         Database.db = new Database(conf.getString("database"));
 
         Display display;
@@ -50,6 +55,8 @@ public class LEDTable {
                 display = new APA102Impl(10, 20, conf.debug());
                 break;
         }
+
+        display.setMaxBrightness(conf.getDouble("max_brightness"));
 
         GameStatus status = new GameStatus();
         status.setApiURL(conf.getString("api_address"));

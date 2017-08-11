@@ -41,6 +41,7 @@ public class Config extends JSONObject {
         this.put("api_port", 8081); // To Sync with remote device
         this.put("database", "database.sqlite3");
         this.put("led_type", "apa102");
+        this.put("max_brightness", 1d);
     }
 
     public void save() {

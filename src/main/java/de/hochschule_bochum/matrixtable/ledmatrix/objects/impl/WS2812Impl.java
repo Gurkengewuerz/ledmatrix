@@ -21,6 +21,7 @@ public class WS2812Impl implements Display {
     private double global_brightness;
     private Color[][] display;
     private boolean debug;
+    private double max_brightness;
 
     /*
     Connect to BCM18 (PWM0) -> Physical Pin 12
@@ -37,6 +38,7 @@ public class WS2812Impl implements Display {
         WS2812.get().show();
 
         global_brightness = 0.5;
+        max_brightness = 1;
         display = new Color[length][width];
         clear();
     }
@@ -69,7 +71,7 @@ public class WS2812Impl implements Display {
 
     public void setGlobal_brightness(double global_brightness) {
         this.global_brightness = global_brightness;
-        WS2812.get().setBrightness((float) global_brightness);
+        WS2812.get().setBrightness((float) (max_brightness * global_brightness));
     }
 
     public Color get(int x, int y) {
@@ -114,5 +116,9 @@ public class WS2812Impl implements Display {
 
     public int getLEDCount() {
         return length * width;
+    }
+
+    public void setMaxBrightness(double max_brightness) {
+        this.max_brightness = max_brightness;
     }
 }

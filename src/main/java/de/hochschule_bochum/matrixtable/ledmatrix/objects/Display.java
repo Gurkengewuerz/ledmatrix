@@ -38,4 +38,6 @@ public interface Display {
     void clear();
 
     void update();
+
+    void setMaxBrightness(double max_brightness);
 }
