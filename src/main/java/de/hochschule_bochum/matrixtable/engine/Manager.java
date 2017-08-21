@@ -15,43 +15,48 @@ import java.util.logging.Logger;
 
 public class Manager {
 
-    public static ArrayList<Game> getGames() {
-        ArrayList<Game> gamelist = new ArrayList<>();
-        Reflections reflections = new Reflections("de.hochschule_bochum.matrixtable");
-        Set<Class<? extends Game>> subTypes = reflections.getSubTypesOf(Game.class);
+    private static ArrayList<Game> gamelist = new ArrayList<>();
+    private static ArrayList<Animation> list = new ArrayList<>();
 
-        subTypes.forEach(aClass -> {
-            try {
-                Method methode = aClass.getDeclaredMethod("newInstance");
-                Object gameObj = methode.invoke(aClass.newInstance());
-                if (gameObj instanceof Game) {
-                    Game game = (Game) gameObj;
-                    gamelist.add(game);
+    public static ArrayList<Game> getGames() {
+        if (gamelist.isEmpty()) {
+            Reflections reflections = new Reflections("de.hochschule_bochum.matrixtable.game");
+            Set<Class<? extends Game>> subTypes = reflections.getSubTypesOf(Game.class);
+
+            subTypes.forEach(aClass -> {
+                try {
+                    Method methode = aClass.getDeclaredMethod("newInstance");
+                    Object gameObj = methode.invoke(aClass.newInstance());
+                    if (gameObj instanceof Game) {
+                        Game game = (Game) gameObj;
+                        gamelist.add(game);
+                    }
+                } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
+                    Logger.getLogger(Manager.class.getName()).log(Level.SEVERE, null, e);
                 }
-            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
-                Logger.getLogger(Manager.class.getName()).log(Level.SEVERE, null, e);
-            }
-        });
+            });
+        }
         return gamelist;
     }
 
     public static ArrayList<Animation> getAnimations(Display d) {
-        ArrayList<Animation> list = new ArrayList<>();
-        Reflections reflections = new Reflections("de.hochschule_bochum.matrixtable");
-        Set<Class<? extends Animation>> classes = reflections.getSubTypesOf(Animation.class);
+        if (list.isEmpty()) {
+            Reflections reflections = new Reflections("de.hochschule_bochum.matrixtable");
+            Set<Class<? extends Animation>> classes = reflections.getSubTypesOf(Animation.class);
 
-        classes.forEach(aClass -> {
-            try {
-                Method methode = aClass.getDeclaredMethod("newInstance", Display.class);
-                Object obj = methode.invoke(aClass.getDeclaredConstructor(Display.class).newInstance(d), d);
-                if (obj instanceof Animation) {
-                    Animation animation = (Animation) obj;
-                    list.add(animation);
+            classes.forEach(aClass -> {
+                try {
+                    Method methode = aClass.getDeclaredMethod("newInstance", Display.class);
+                    Object obj = methode.invoke(aClass.getDeclaredConstructor(Display.class).newInstance(d), d);
+                    if (obj instanceof Animation) {
+                        Animation animation = (Animation) obj;
+                        list.add(animation);
+                    }
+                } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
+                    Logger.getLogger(Manager.class.getName()).log(Level.SEVERE, null, e);
                 }
-            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
-                Logger.getLogger(Manager.class.getName()).log(Level.SEVERE, null, e);
-            }
-        });
+            });
+        }
         return list;
     }
 
