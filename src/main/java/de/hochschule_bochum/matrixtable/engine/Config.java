@@ -42,6 +42,7 @@ public class Config extends JSONObject {
         this.put("database", "database.sqlite3");
         this.put("led_type", "apa102");
         this.put("max_brightness", 1d);
+        this.put("just_webserver", false);
     }
 
     public void save() {
