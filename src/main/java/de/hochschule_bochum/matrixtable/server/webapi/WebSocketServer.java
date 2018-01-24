@@ -112,6 +112,19 @@ public class WebSocketServer {
                 break;
             }
 
+            case "fill": {
+                if (obj.has("rgb")) {
+                    JSONArray array = obj.getJSONArray("rgb");
+                    if (array.length() < 2) return;
+
+                    display.setAll(new Color(
+                            array.getInt(0),
+                            array.getInt(1),
+                            array.getInt(2)), true);
+                }
+                break;
+            }
+
             default: {
 
             }

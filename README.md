@@ -8,3 +8,9 @@ Programm ein mal ausführen und danach die `settings.json` anpassen.
 
 ## Development Umgebung
 Für eine angenehmere Programmierumgebung wurde das Plugin [Embedded Linux JVM genutzt](https://plugins.jetbrains.com/plugin/7738-embedded-linux-jvm-debugger-raspberry-pi-beaglebone-black-intel-galileo-ii-and-several-other-iot-devices-).
+
+
+<p align="center">
+    <img src="assets/ledtisch_einzelbild.png" /><br/>
+    <img height="25%" src="assets/ledtisch_apa.png" />
+</p>
