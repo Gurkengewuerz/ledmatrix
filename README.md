@@ -12,5 +12,5 @@ Für eine angenehmere Programmierumgebung wurde das Plugin [Embedded Linux JVM g
 
 <p align="center">
     <img src="assets/ledtisch_einzelbild.png" /><br/>
-    <img height="25%" src="assets/ledtisch_apa.jpg" />
+    <img height="500px" src="assets/ledtisch_apa.jpg" />
 </p>
