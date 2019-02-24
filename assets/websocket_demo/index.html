@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Websocket Demo</title>
+
+    <style>
+        div.tab-frame input {
+            display: none;
+        }
+
+        div.tab-frame label {
+            display: block;
+            float: left;
+            padding: 5px 10px;
+            cursor: pointer
+        }
+
+        div.tab-frame input:checked + label {
+            background: black;
+            color: white;
+            cursor: default
+        }
+
+        div.tab-frame div.tab {
+            display: none;
+            padding: 5px 10px;
+            clear: left
+        }
+
+        div.tab-frame input:nth-of-type(1):checked ~ .tab:nth-of-type(1),
+        div.tab-frame input:nth-of-type(2):checked ~ .tab:nth-of-type(2),
+        div.tab-frame input:nth-of-type(3):checked ~ .tab:nth-of-type(3),
+        div.tab-frame input:nth-of-type(4):checked ~ .tab:nth-of-type(4),
+        div.tab-frame input:nth-of-type(5):checked ~ .tab:nth-of-type(5) {
+            display: block;
+        }
+
+        body {
+            width: 600px;
+            margin: 20px auto;
+            font-family: Arial;
+        }
+    </style>
+</head>
+<body>
+<div class="tab-frame">
+    <input type="radio" checked name="tab" id="tab1">
+    <label for="tab1">Bild laden</label>
+
+    <input type="radio" name="tab" id="tab2">
+    <label for="tab2">Pixel Art</label>
+
+    <input type="radio" name="tab" id="tab3">
+    <label for="tab3">Equalize</label>
+
+    <input type="radio" name="tab" id="tab4">
+    <label for="tab4">tab4</label>
+
+    <input type="radio" name="tab" id="tab5">
+    <label for="tab5">tab5</label>
+
+    <div class="tab">
+        Bild Laden
+    </div>
+    <div class="tab">
+        <div style="text-align: center;">
+            <div id="paintDiv"></div>
+        </div>
+    </div>
+    <div class="tab">
+        Equalize
+    </div>
+    <div class="tab">sample content 4</div>
+    <div class="tab">sample content 5</div>
+</div>
+
+<script type="text/javascript">
+    var connection = new WebSocket('ws://192.168.43.165:8025/');
+
+    // When the connection is open, send some data to the server
+    connection.onopen = function () {
+        console.log("Verbindung geöffnet");
+    };
+
+    // Log errors
+    connection.onerror = function (error) {
+        console.log('WebSocket Error ' + error);
+    };
+
+    // Log messages from the server
+    connection.onmessage = function (e) {
+        console.log('Server: ' + e.data);
+    };
+</script>
+
+<!--Pixel Art-->
+<script type="text/javascript">
+    // main
+
+    function main() {
+        var session = new Session
+        (
+            new Coords(10, 20), // imageSizeInPixelsActual
+            16, // magnificationFactor
+            // colors
+            [
+                "Black",
+                "White",
+                "Red",
+                "Orange",
+                "Yellow",
+                "Green",
+                "Blue",
+                "Violet",
+                "Brown",
+                "Gray",
+            ]
+        );
+
+        session.initialize();
+    }
+
+    // classes
+
+    function Coords(x, y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    {
+        Coords.prototype.clone = function () {
+            return new Coords(this.x, this.y);
+        };
+
+        Coords.prototype.divide = function (other) {
+            this.x /= other.x;
+            this.y /= other.y;
+            return this;
+        };
+
+        Coords.prototype.floor = function () {
+            this.x = Math.floor(this.x);
+            this.y = Math.floor(this.y);
+            return this;
+        };
+
+        Coords.prototype.multiply = function (other) {
+            this.x *= other.x;
+            this.y *= other.y;
+            return this;
+        };
+
+        Coords.prototype.multiplyScalar = function (scalar) {
+            this.x *= scalar;
+            this.y *= scalar;
+            return this;
+        }
+
+    }
+
+    function Display(sizeInPixels) {
+        this.sizeInPixels = sizeInPixels;
+    }
+
+    {
+        Display.prototype.drawImage = function (image) {
+            this.graphics.drawImage
+            (
+                image,
+                0, 0
+            );
+        };
+
+        Display.prototype.drawPixel = function (color, pos) {
+            var d = document.createElement("div");
+            d.style.color = color;
+            document.body.appendChild(d)
+            var rgb = window.getComputedStyle(d).color;
+            rgb = rgb.substring(4, rgb.length-1).replace(/ /g, '').split(',');
+
+            var jsonData = {
+                "command": "setSingle",
+                "x": (pos.x + 1),
+                "y": (pos.y + 1),
+                "rgb": [
+                    parseInt(rgb[0]),parseInt(rgb[1]),parseInt(rgb[2])
+                ]
+            };
+
+            console.log(jsonData);
+
+            connection.send(JSON.stringify(jsonData));
+
+            document.body.removeChild(d);
+
+            this.graphics.fillStyle = color;
+            this.graphics.fillRect
+            (
+                pos.x, pos.y, 1, 1
+            );
+        };
+
+        Display.prototype.drawRectangle = function (color, pos, size) {
+            this.graphics.fillStyle = color;
+            this.graphics.fillRect
+            (
+                pos.x, pos.y, size.x, size.y
+            );
+        };
+
+        Display.prototype.fillWithColor = function (color) {
+            var d = document.createElement("div");
+            d.style.color = color;
+            document.body.appendChild(d)
+            var rgb = window.getComputedStyle(d).color;
+            rgb = rgb.substring(4, rgb.length-1).replace(/ /g, '').split(',');
+
+
+            var jsonDataFill = {
+                "command": "fill",
+                "rgb": [
+                    parseInt(rgb[0]),parseInt(rgb[1]),parseInt(rgb[2])
+                ]
+            };
+
+            console.log(jsonDataFill);
+            if(connection.readyState === connection.OPEN){
+                connection.send(JSON.stringify(jsonDataFill));
+            }
+            this.drawRectangle(color, new Coords(0, 0), this.sizeInPixels);
+        };
+
+        Display.prototype.initialize = function (domElementParent) {
+            this.canvas = document.createElement("canvas");
+            this.canvas.style = "border:1px solid;";
+            this.canvas.width = this.sizeInPixels.x;
+            this.canvas.height = this.sizeInPixels.y;
+
+            domElementParent.appendChild(this.canvas);
+
+            this.graphics = this.canvas.getContext("2d");
+            this.graphics.imageSmoothingEnabled = false;
+
+            this.fillWithColor("White");
+        }
+    }
+
+    function Session(imageSizeInPixelsActual, magnificationFactor, colors) {
+        this.imageSizeInPixelsActual = imageSizeInPixelsActual;
+        this.magnificationFactor = magnificationFactor;
+        this.colors = colors;
+    }
+
+    {
+        // methods
+
+        Session.prototype.initialize = function () {
+            this.imageSizeInPixelsMagnified = this.imageSizeInPixelsActual.clone().multiplyScalar
+            (
+                this.magnificationFactor
+            );
+
+            this.cellSizeInPixels = new Coords(1, 1).multiplyScalar
+            (
+                this.magnificationFactor
+            );
+
+            var paintDiv = document.getElementById("paintDiv");
+            paintDiv.innerHTML = "";
+
+            var divImages = document.createElement("div");
+
+            this.displayMagnified = new Display(this.imageSizeInPixelsMagnified);
+            this.displayMagnified.initialize(divImages);
+            this.displayMagnified.canvas.onmousemove =
+                this.canvasMagnified_MouseMoved.bind(this);
+
+            this.displayActualSize = new Display(this.imageSizeInPixelsActual);
+            this.displayActualSize.initialize(divImages);
+
+            paintDiv.appendChild(divImages);
+
+            var buttonClear = document.createElement("button");
+            buttonClear.innerHTML = "Füllen";
+            buttonClear.onclick = this.buttonClear_Clicked.bind(this);
+            paintDiv.appendChild(buttonClear);
+
+            this.colorSelected = this.colors[0];
+
+            var divColors = document.createElement("div");
+
+            for (var i = 0; i < this.colors.length; i++) {
+                var color = this.colors[i];
+                var buttonColor = document.createElement("button");
+                buttonColor.innerHTML = color;
+                buttonColor.style.color = color;
+                buttonColor.onclick = this.buttonColor_Clicked.bind(this);
+                divColors.appendChild(buttonColor);
+            }
+
+            paintDiv.appendChild(divColors);
+        };
+
+        // ui events
+
+        Session.prototype.buttonClear_Clicked = function () {
+            this.displayMagnified.fillWithColor(this.colorSelected);
+            this.displayActualSize.fillWithColor(this.colorSelected);
+        };
+
+        Session.prototype.buttonColor_Clicked = function (event) {
+            var buttonColor = event.target;
+            this.colorSelected = buttonColor.innerHTML;
+        };
+
+        Session.prototype.canvasMagnified_MouseMoved = function (event) {
+            if (event.buttons === 0) {
+                return;
+            }
+
+            var canvas = event.target;
+            var canvasBounds = canvas.getBoundingClientRect();
+
+            var clickPosInPixels = new Coords
+            (
+                event.clientX - canvasBounds.left,
+                event.clientY - canvasBounds.top
+            );
+
+            var clickPosInCells = clickPosInPixels.clone().divide
+            (
+                this.cellSizeInPixels
+            ).floor();
+
+            var cellPosInPixels = clickPosInCells.clone().multiply
+            (
+                this.cellSizeInPixels
+            );
+
+            var color = this.colorSelected;
+
+            this.displayMagnified.drawRectangle
+            (
+                color,
+                cellPosInPixels,
+                this.cellSizeInPixels
+            );
+
+            this.displayActualSize.drawPixel
+            (
+                color,
+                clickPosInCells
+            );
+        }
+    }
+
+    // run
+
+    main();
+
+</script>
+</body>
+</html>
