@@ -7,8 +7,10 @@ import de.hochschule_bochum.matrixtable.ledmatrix.objects.Display;
 import de.hochschule_bochum.matrixtable.ledmatrix.objects.impl.APA102Impl;
 import de.hochschule_bochum.matrixtable.ledmatrix.objects.impl.WS2812Impl;
 import de.hochschule_bochum.matrixtable.server.bluetooth.controller.ControllerServer;
+import de.hochschule_bochum.matrixtable.server.mqtt.MqttClient;
 import de.hochschule_bochum.matrixtable.server.webapi.NanoServer;
 import de.hochschule_bochum.matrixtable.server.webapi.WebSocketServer;
+import org.eclipse.paho.client.mqttv3.MqttException;
 import org.glassfish.tyrus.server.Server;
 
 import javax.websocket.DeploymentException;
@@ -84,6 +86,14 @@ public class LEDTable {
                 }
             });
             webserver.start();
+
+            if (!conf.getString("mqtt_host").isEmpty()) {
+                try {
+                    new MqttClient(conf.getString("mqtt_host"), conf.getInt("mqtt_port"), conf.getString("mqtt_user"), conf.getString("mqtt_pass"), status, display);
+                } catch (MqttException e) {
+                    Logger.getLogger(MqttClient.class.getName()).log(Level.SEVERE, null, e);
+                }
+            }
 
             while (true) {
                 ControllerServer controller = new ControllerServer(status);

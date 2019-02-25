@@ -118,6 +118,11 @@
             <artifactId>tyrus-container-grizzly-server</artifactId>
             <version>1.13</version>
         </dependency>
+        <dependency>
+            <groupId>org.eclipse.paho</groupId>
+            <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
+            <version>LATEST</version>
+        </dependency>
     </dependencies>
 
     <build>

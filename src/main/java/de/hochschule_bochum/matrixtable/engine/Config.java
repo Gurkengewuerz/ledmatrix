@@ -39,6 +39,10 @@ public class Config extends JSONObject {
         this.put("debug", true);
         this.put("api_address", "http://127.0.0.1:8081"); // To Sync with remote device
         this.put("api_port", 8081); // To Sync with remote device
+        this.put("mqtt_host", "");
+        this.put("mqtt_port", 1883);
+        this.put("mqtt_user", "");
+        this.put("mqtt_pass", "");
         this.put("database", "database.sqlite3");
         this.put("led_type", "apa102");
         this.put("max_brightness", 1d);
