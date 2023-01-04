@@ -14,6 +14,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.awt.*;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -24,6 +26,7 @@ public class MqttClient extends org.eclipse.paho.client.mqttv3.MqttClient {
 
     private Display display;
     private GameStatus gamestatus;
+    private final Timer updater;
 
     public MqttClient(String host, int port, String username, String password, GameStatus gamestatus, Display display) throws MqttException {
         super("tcp://" + host + ":" + port, generateClientId());
@@ -123,9 +126,20 @@ public class MqttClient extends org.eclipse.paho.client.mqttv3.MqttClient {
             public void deliveryComplete(IMqttDeliveryToken t) {
             }
         });
+
+        final TimerTask updateTask = new TimerTask() {
+            @Override
+            public void run() {
+                sendUpdate();
+            }
+        };
+
+        updater = new Timer();
+        updater.scheduleAtFixedRate(updateTask, 0, 5 * 1000);
     }
 
     void sendUpdate() {
+        if(!isConnected()) return;
         JSONObject data = new JSONObject();
         data.put("state", display.getGlobalBrightness() > 0d ? "ON" : "OFF");
         data.put("brightness", Math.ceil(display.getGlobalBrightness() * 255));
