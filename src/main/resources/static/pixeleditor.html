@@ -77,7 +77,11 @@
 </div>
 
 <script type="text/javascript">
-    var connection = new WebSocket('ws://192.168.43.165:8025/');
+    var connection = new WebSocket(
+        (window.location.protocol === "https:" ? "wss://" : "ws://") +
+        window.location.hostname +
+        ":8082"
+    );
 
     // When the connection is open, send some data to the server
     connection.onopen = function () {
