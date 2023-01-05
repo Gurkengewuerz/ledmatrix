@@ -56,11 +56,6 @@
             <version>3.12.0</version>
         </dependency>
         <dependency>
-            <groupId>com.github.strikerx3</groupId>
-            <artifactId>jxinput</artifactId>
-            <version>ca55984</version>    <!-- JXInput 0.8 -->
-        </dependency>
-        <dependency>
             <groupId>org.xerial</groupId>
             <artifactId>sqlite-jdbc</artifactId>
             <version>3.40.0.0</version>
@@ -84,16 +79,6 @@
             <groupId>org.reflections</groupId>
             <artifactId>reflections</artifactId>
             <version>0.10.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish.tyrus</groupId>
-            <artifactId>tyrus-server</artifactId>
-            <version>2.1.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish.tyrus</groupId>
-            <artifactId>tyrus-container-grizzly-server</artifactId>
-            <version>2.1.2</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.paho</groupId>
