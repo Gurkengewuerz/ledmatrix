@@ -1,0 +1,17 @@
+[Unit]
+Description=LED Matrix
+
+[Service]
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=30
+
+User=pi
+Group=nogroup
+
+WorkingDirectory=/home/pi/
+ExecStart=/usr/bin/java -jar LEDMatrix.jar
+SyslogIdentifier=ledmatrix
+
+[Install]
+WantedBy=multi-user.target
