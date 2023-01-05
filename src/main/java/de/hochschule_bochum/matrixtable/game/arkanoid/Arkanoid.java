@@ -8,8 +8,8 @@ import de.hochschule_bochum.matrixtable.game.arkanoid.objects.ArkanoidBoard;
 import de.hochschule_bochum.matrixtable.game.arkanoid.objects.Ball;
 import de.hochschule_bochum.matrixtable.game.arkanoid.objects.Brick;
 import de.hochschule_bochum.matrixtable.game.arkanoid.objects.Paddle;
-import de.hochschule_bochum.matrixtable.server.bluetooth.controller.ButtonState;
-import de.hochschule_bochum.matrixtable.server.bluetooth.controller.Key;
+import de.hochschule_bochum.matrixtable.server.controller.ButtonState;
+import de.hochschule_bochum.matrixtable.server.controller.Key;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;

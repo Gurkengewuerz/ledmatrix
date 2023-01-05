@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Game Interface</title>
+  <script
+          src="/static/data/js/jquery-3.2.1.min.js"
+          type="text/javascript"
+  ></script>
+  <script
+          src="/static/data/js/bootstrap.bundle.min.js"
+          type="text/javascript"
+  ></script>
+  <script
+          src="/static/data/js/gamecontroller.min.js"
+          type="text/javascript"
+  ></script>
+  <link
+          href="/static/data/bootstrap.min.css"
+          rel="stylesheet"
+          type="text/css"
+  />
+  <link href="/static/data/style.css" rel="stylesheet" type="text/css"/>
+  <link href="/static/data/controller.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div class="container" data-bs-theme="dark">
+  <div class="row">
+    <div class="col-sm-12 col-md-8">
+      <h1>LED-Matrix Game</h1>
+    </div>
+    <div class="col-sm-12 col-md-4">
+      <span class="m-auto" id="game-status"></span>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-sm-12 col-lg-8">
+      <div class="row">
+        <div class="col-sm-12 text-center">
+          <div
+                  aria-label="Basic outlined example"
+                  class="btn-group"
+                  role="group"
+          >
+            <button
+                    class="btn btn-outline-primary ctrl-inp"
+                    data-key="select"
+                    type="button"
+            >
+              SELECT
+            </button>
+            <button
+                    class="btn btn-outline-primary ctrl-inp"
+                    data-key="start"
+                    type="button"
+            >
+              START
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-sm-12">
+        <div class="set setbg white">
+          <nav class="d-pad">
+            <a class="up ctrl-inp" data-key="up" href="#"></a>
+            <a class="right ctrl-inp" data-key="right" href="#"></a>
+            <a class="down ctrl-inp" data-key="down" href="#"></a>
+            <a class="left ctrl-inp" data-key="left" href="#"></a>
+          </nav>
+          <nav class="o-pad">
+            <a class="up ctrl-inp" data-key="y" href="#"></a>
+            <a class="right ctrl-inp" data-key="b" href="#"></a>
+            <a class="down ctrl-inp" data-key="a" href="#"></a>
+            <a class="left ctrl-inp" data-key="x" href="#"></a>
+          </nav>
+        </div>
+      </div>
+
+      <div class="col-sm-12 text-center">
+        <h4 id="current-score">Score 0</h4>
+      </div>
+    </div>
+    <div class="col-sm-12 col-lg-4">
+      <h2>Games</h2>
+      <div class="list-group" id="gameList"></div>
+
+      <h2>Highscores</h2>
+      <div class="btn-group w-100" id="highscoreGames" role="group"></div>
+      <div class="list-group list-group-numbered" id="highscoreList"></div>
+    </div>
+  </div>
+
+  <div
+          aria-hidden="true"
+          aria-labelledby="usernameModalLabel"
+          class="modal fade"
+          data-bs-backdrop="static"
+          data-bs-keyboard="false"
+          id="usernameModal"
+          tabindex="-1"
+  >
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="usernameModalLabel">
+            Select Username
+          </h1>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label" for="username">Username</label>
+            <input
+                    class="form-control"
+                    id="username"
+                    placeholder="Your Name"
+                    type="text"
+            />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary" id="username-save" type="button">
+            Save
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  const hashCode = (str) =>
+          str
+                  .split("")
+                  .reduce((s, c) => (Math.imul(31, s) + c.charCodeAt(0)) | 0, 0);
+
+  const isMobile = () => {
+    try {
+      document.createEvent("TouchEvent");
+      return true;
+    } catch (e) {
+      return false;
+    }
+  };
+
+  const timeConverter = (UNIX_timestamp) => {
+    var a = new Date(UNIX_timestamp * 1000);
+    var months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+    var year = a.getFullYear();
+    var month = months[a.getMonth()];
+    var date = a.getDate();
+    var hour = a.getHours();
+    var min = a.getMinutes();
+    var sec = a.getSeconds();
+    var time =
+            date + " " + month + " " + year + " " + hour + ":" + min + ":" + sec;
+    return time;
+  };
+
+  $(document).ready(function () {
+    let initialized = false;
+    let myUsername = "";
+    let gameData = {}; // {"timer":0,"protocol":2,"timertype":"none","level":1,"highscore":0,"api_url":"http://127.0.0.1:8081","games":["Arkanoid","Tetris","Snake"],"status":"waiting"}
+    let keys = {
+      start: false,
+      select: false,
+      up: false,
+      down: false,
+      left: false,
+      right: false,
+      a: false,
+      b: false,
+      x: false,
+      y: false,
+    };
+
+    const keyMap = {
+      start: 27, // ESC
+      select: 32, // SPACE
+      up: 38, // Arrow Up
+      down: 40, // Arrow Down
+      left: 37, // Arrow Left
+      right: 39, // Arrow Right
+      a: 102, // Numpad 6
+      b: 98, // Numpad 2
+      x: 100, // Numpad 4
+      y: 104, // Numpad 8
+    };
+
+    const gamepadMap = {
+      start: "button9",
+      select: "button8",
+      up: "button12",
+      down: "button13",
+      left: "button14",
+      right: "button15",
+      a: "button0",
+      b: "button1",
+      x: "button2",
+      y: "button3",
+    };
+
+    const gameStatus = {
+      waiting: "Waiting",
+      pause: "Pause",
+      gameover: "Gameover",
+      running: "Running",
+      waiting_gameover: "Gameover",
+    };
+
+    let connection = new WebSocket(
+            (window.location.protocol === "https:" ? "wss://" : "ws://") +
+            window.location.hostname +
+            ":8082"
+    );
+
+    connection.onopen = function () {
+      console.log("Verbindung geöffnet");
+      keepAlive();
+      usernameModal.show();
+    };
+
+    // Log errors
+    connection.onerror = function (error) {
+      console.log("WebSocket Error " + error);
+    };
+
+    // Log messages from the server
+    connection.onmessage = function (e) {
+      console.log("Server: " + e.data);
+
+      const data = JSON.parse(e.data);
+
+      if (data.hasOwnProperty("gameData")) {
+        gameData = data.gameData;
+
+        $("#game-status").text(gameStatus[gameData.status]);
+        $("#current-score").text(`Score ${gameData.highscore}`);
+
+        if (!initialized) {
+          $.each(gameData.games, function (index, value) {
+            $("#gameList").append(
+                    `<a href="#" dataVal="${value}" class="list-group-item game">${value}</a>`
+            );
+
+            $("#highscoreGames").append(
+                    `<button type="button" class="btn btn-outline-secondary highscores" dataVal="${value}">${value}</button>`
+            );
+          });
+
+          $("a.game").click(function () {
+            var val = $(this).attr("dataVal");
+
+            connection.send(
+                    JSON.stringify({
+                      command: "game",
+                      game: {
+                        protocol: 3,
+                        game: val,
+                        username: myUsername,
+                      },
+                    })
+            );
+          });
+
+          $("button.highscores").click(function () {
+            var val = $(this).attr("dataVal");
+            fetchHighscores(val);
+          });
+
+          fetchHighscores(gameData.games[0]);
+
+          initialized = true;
+        }
+      }
+    };
+
+    let timerId = 0;
+
+    const keepAlive = (timeout = 5000) => {
+      if (connection.readyState == connection.OPEN) {
+        connection.send(JSON.stringify({command: "ping"}));
+      }
+      timerId = setTimeout(keepAlive, timeout);
+    };
+
+    const cancelKeepAlive = () => {
+      if (timerId) {
+        clearTimeout(timerId);
+      }
+    };
+
+    const usernameModal = new bootstrap.Modal("#usernameModal");
+
+    const fetchHighscores = (game) => {
+      $.ajax({
+        url: "/highscore",
+        type: "GET",
+        success: function (response, status) {
+          console.log(response);
+          $("#highscoreList").html("");
+          if (response.hasOwnProperty(game)) {
+            $.each(response[game], function (index, value) {
+              $("#highscoreList").append(
+                      `<li class="list-group-item d-flex justify-content-between align-items-start"><div class="ms-2 me-auto"><div class="fw-bold">${
+                              value.user
+                      }</div>${timeConverter(
+                              value.created
+                      )}</div><span class="badge bg-primary rounded-pill">${
+                              value.score
+                      }</span></li>`
+              );
+            });
+          } else $("#highscoreList").text("No Data");
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+          console.log(textStatus, errorThrown);
+        },
+      });
+    };
+
+    $("#username-save").click(function () {
+      const val = $("#username").val();
+      if (!val || val.length <= 3) return;
+      myUsername = val;
+      connection.send(
+              JSON.stringify({
+                command: "user",
+                username: myUsername,
+                uuid: hashCode(myUsername).toString(),
+              })
+      );
+      usernameModal.hide();
+    });
+
+    const sendUpdate = (data) => {
+      if (connection.readyState == connection.OPEN) {
+        connection.send(
+                JSON.stringify({
+                  command: "game",
+                  game: {
+                    protocol: 1,
+                    ...data,
+                  },
+                })
+        );
+      }
+    };
+
+    $(".ctrl-inp").bind("contextmenu", function (ev) {
+      ev.preventDefault();
+    });
+
+    $(".ctrl-inp").on(
+            isMobile() ? "touchstart" : "mousedown",
+            function (ev) {
+              navigator.vibrate && navigator.vibrate(35);
+              const target = ev.target.getAttribute("data-key");
+              keys[target] = true;
+              sendUpdate(keys);
+              return false;
+            }
+    );
+
+    $(".ctrl-inp").on(isMobile() ? "touchend" : "mouseup", function (ev) {
+      const target = ev.target.getAttribute("data-key");
+      keys[target] = false;
+      sendUpdate(keys);
+      return false;
+    });
+
+    $(document).keydown(function (ev) {
+      for (const [key, value] of Object.entries(keyMap)) {
+        if (value === ev.which) {
+          ev.preventDefault();
+          keys[key] = true;
+          sendUpdate(keys);
+          break;
+        }
+      }
+    });
+
+    $(document).keyup(function (ev) {
+      for (const [key, value] of Object.entries(keyMap)) {
+        if (value === ev.which) {
+          ev.preventDefault();
+          keys[key] = false;
+          sendUpdate(keys);
+          break;
+        }
+      }
+    });
+
+    gameControl.on("connect", (gamepad) => {
+      console.log("A new gamepad was connected!");
+      Object.entries(gamepadMap).forEach((entry) => {
+        const [key, value] = entry;
+
+        gamepad.before(value, () => {
+          keys[key] = true;
+          sendUpdate(keys);
+        });
+        gamepad.after(value, () => {
+          keys[key] = false;
+          sendUpdate(keys);
+        });
+
+      });
+    });
+  });
+</script>
+</body>
+</html>

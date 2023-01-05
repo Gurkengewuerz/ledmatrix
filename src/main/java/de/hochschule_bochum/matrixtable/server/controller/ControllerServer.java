@@ -1,17 +1,16 @@
-package de.hochschule_bochum.matrixtable.server.bluetooth.controller;
+package de.hochschule_bochum.matrixtable.server.controller;
 
+import de.hochschule_bochum.matrixtable.LEDTable;
 import de.hochschule_bochum.matrixtable.engine.Database;
 import de.hochschule_bochum.matrixtable.engine.Manager;
 import de.hochschule_bochum.matrixtable.engine.game.Game;
 import de.hochschule_bochum.matrixtable.engine.game.GameStatus;
 import de.hochschule_bochum.matrixtable.server.Callback;
 import de.hochschule_bochum.matrixtable.server.MultiCallback;
-import de.hochschule_bochum.matrixtable.server.bluetooth.BluetoothServer;
+import de.hochschule_bochum.matrixtable.server.webapi.NanoWebsocketServer;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import javax.bluetooth.RemoteDevice;
-import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -25,29 +24,38 @@ import java.util.logging.Logger;
  */
 public class ControllerServer {
 
-    private BluetoothServer btServer;
-    private Callback<RemoteDevice> disconnectListener;
+    private Callback<Boolean> disconnectListener;
     private ResponseHandler responseHandler;
     private GameStatus gameStatus;
 
+    private NanoWebsocketServer.WsdSocket currentClient;
+
     public ControllerServer(GameStatus gameStatus) {
-        btServer = new BluetoothServer("Remote Device");
         this.gameStatus = gameStatus;
+        while (LEDTable.getWebsocketServer().getFirstClient() == null) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ignored) {
+            }
+        }
+
         responseHandler = new ResponseHandler(gameStatus);
-        Callback<RemoteDevice> disconnectHandler = device -> {
-            if (disconnectListener != null) disconnectListener.callback(device);
+        Callback<Boolean> disconnectHandler = device -> {
+            if (disconnectListener != null) disconnectListener.callback(true);
             responseHandler.close();
-            btServer.close();
         };
-        btServer.startServer(responseHandler, disconnectHandler);
-        gameStatus.setUsermac(btServer.getDevice().getBluetoothAddress());
+
+        currentClient = LEDTable.getWebsocketServer().getFirstClient();
+        currentClient.startServer(responseHandler, disconnectHandler);
+
+        gameStatus.setUsermac(currentClient.getUserID());
         try {
             ResultSet result = Database.db.executeQuery("SELECT COUNT(*) AS rowcount FROM devices WHERE mac = ?;", gameStatus.getUsermac());
             result.next();
             if (result.getInt("rowcount") == 0)
-                Database.db.executeUpdate("INSERT INTO devices (mac, username) VALUES (?, ?);", gameStatus.getUsermac(), btServer.getDevice().getFriendlyName(true));
+                Database.db.executeUpdate("INSERT INTO devices (mac, username) VALUES (?, ?);", gameStatus.getUsermac(), currentClient.getUsername());
             result.close();
-        } catch (IOException | SQLException e) {
+        } catch (SQLException e) {
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
         }
 
@@ -68,7 +76,7 @@ public class ControllerServer {
         responseHandler.setOnKeyHoldListener(keyKeepListener);
     }
 
-    public void setOnUnknownProtocolListener(Callback<String> unknownProtocol) {
+    public void setOnUnknownProtocolListener(Callback<JSONObject> unknownProtocol) {
         responseHandler.setOnUnknownProtocolListener(unknownProtocol);
     }
 
@@ -84,35 +92,40 @@ public class ControllerServer {
         responseHandler.setTimesPerSec(timesPerSec);
     }
 
-    public void setOnDisconnectListener(Callback<RemoteDevice> disconnectListener) {
+    public void setOnDisconnectListener(Callback<Boolean> disconnectListener) {
         this.disconnectListener = disconnectListener;
     }
 
     public void sendStatus(GameStatus status) {
-        if (btServer == null) return;
+        if (LEDTable.websocketServer == null || currentClient == null) return;
+        if (!currentClient.isOpen()) return;
         if (gameStatus == null) return;
-        JSONObject json = new JSONObject();
-        json.put("protocol", 2);
-        json.put("status", status.getStatus().toString());
-        json.put("level", status.getLevel());
-        json.put("highscore", status.getHighscore());
-        json.put("timertype", status.getType().toString());
-        json.put("timer", status.getTime());
-        json.put("api_url", status.getApiURL());
+        JSONObject gameData = new JSONObject();
+        gameData.put("protocol", 2);
+        gameData.put("status", status.getStatus().toString());
+        gameData.put("level", status.getLevel());
+        gameData.put("highscore", status.getHighscore());
+        gameData.put("timertype", status.getType().toString());
+        gameData.put("timer", status.getTime());
+        gameData.put("api_url", status.getApiURL());
         JSONArray games = new JSONArray();
         Manager.getGames().forEach(game -> games.put(game.getName()));
-        json.put("games", games);
-        btServer.send(json.toString());
+        gameData.put("games", games);
+
+        JSONObject json = new JSONObject();
+        json.put("gameData", gameData);
+
+        currentClient.trySend(json.toString());
     }
 
-    public class ResponseHandler implements Callback<String> {
+    public class ResponseHandler implements Callback<JSONObject> {
 
         private JSONObject jsonData;
         private HashMap<Key, ButtonState> currentStates = new HashMap<>();
         private HashMap<Key, Long> lastSend = new HashMap<>();
         private MultiCallback<Key, ButtonState> keyChangeListener;
         private Callback<Key> keyKeepListener;
-        private Callback<String> unknownProtocol;
+        private Callback<JSONObject> unknownProtocol;
         private Callback<Game> gameSelected;
         private float tickSpeed;
         private Timer holdTask;
@@ -138,10 +151,10 @@ public class ControllerServer {
         }
 
         @Override
-        public void callback(String response) {
-            jsonData = new JSONObject(response);
+        public void callback(JSONObject jsonData) {
+            this.jsonData = jsonData;
             if (!jsonData.has("protocol")) {
-                if (unknownProtocol != null) unknownProtocol.callback(response);
+                if (unknownProtocol != null) unknownProtocol.callback(jsonData);
                 return;
             }
             switch (jsonData.getInt("protocol")) {
@@ -150,7 +163,7 @@ public class ControllerServer {
                     break;
                 case 3: // Settings Protocol
                     String game = jsonData.has("game") ? jsonData.getString("game") : "";
-                    Game selectedGame = Manager.getGames().stream().filter(x -> x.getName().equals(game)).findFirst().orElse(null);
+                    Game selectedGame = Manager.getGames().stream().filter(x -> x.getName().equalsIgnoreCase(game)).findFirst().orElse(null);
                     if (selectedGame != null && gameSelected != null) gameSelected.callback(selectedGame.newInstance());
                     String username = jsonData.has("username") ? jsonData.getString("username") : "";
                     status.setUsername(username);
@@ -159,7 +172,7 @@ public class ControllerServer {
                     }
                     break;
                 default:
-                    if (unknownProtocol != null) unknownProtocol.callback(response);
+                    if (unknownProtocol != null) unknownProtocol.callback(jsonData);
                     break;
             }
         }
@@ -172,7 +185,7 @@ public class ControllerServer {
             this.keyKeepListener = keyKeepListener;
         }
 
-        public void setOnUnknownProtocolListener(Callback<String> unknownProtocol) {
+        public void setOnUnknownProtocolListener(Callback<JSONObject> unknownProtocol) {
             this.unknownProtocol = unknownProtocol;
         }
 

@@ -7,8 +7,8 @@ import de.hochschule_bochum.matrixtable.engine.game.GameStatus;
 import de.hochschule_bochum.matrixtable.game.tetris.objects.TetrisBoard;
 import de.hochschule_bochum.matrixtable.game.tetris.objects.Tile;
 import de.hochschule_bochum.matrixtable.game.tetris.objects.TileType;
-import de.hochschule_bochum.matrixtable.server.bluetooth.controller.ButtonState;
-import de.hochschule_bochum.matrixtable.server.bluetooth.controller.Key;
+import de.hochschule_bochum.matrixtable.server.controller.ButtonState;
+import de.hochschule_bochum.matrixtable.server.controller.Key;
 
 import java.util.Random;
 import java.util.logging.Level;

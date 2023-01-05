@@ -8,20 +8,7 @@ if ! [ -x "$(command -v java)" ]; then
 fi
 
 apt-get update
-apt-get install -y htop oracle-java8-installer bluetooth bluez-tools blueman libbluetooth-dev maven git screen
-
-if grep -q 'ExecStart=\/usr\/lib\/bluetooth\/bluetoothd -C' /etc/systemd/system/bluetooth.target.wants/bluetooth.service; then
-    echo "Bluetooth Config is OK"
-else
-  echo 'Error: wrong bluetooth config.' >&2
-  sed -i -- 's/ExecStart=\/usr\/lib\/bluetooth\/bluetoothd/ExecStart=\/usr\/lib\/bluetooth\/bluetoothd -C/g' /etc/systemd/system/bluetooth.target.wants/bluetooth.service
-fi
-
-if [ ! -f /etc/bluetooth/rfcomm.conf ]; then
-    echo -e "rfcomm0 {\n  bind yes;\n  device xx:xx:xx:xx:xx:xx;\n  channel 1;\n  comment \"Phone\";\n}" >/etc/bluetooth/rfcomm.conf
-fi
-
-hciconfig hci0 up
+apt-get install -y htop oracle-java8-installer maven git screen
 
 cd /tmp
 git clone https://github.com/Gurkengewuerz/ledmatrix.git
@@ -39,7 +26,6 @@ echo "#######################################################################"
 echo "# Install Success!                                                    #"
 echo "# please use crontab -e -u root to                                    #"
 echo "# add @reboot screen -dmS matrix java -jar $HOME/matrix/LEDMatrix.jar #"
-echo "# use bluetoothctl to pair with your phone                            #"
 echo "# setup your matrix config in                                         #"
 echo "#                                                                     #"
 echo "# after all reboot the rpi                                            #"

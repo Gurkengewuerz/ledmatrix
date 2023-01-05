@@ -6,14 +6,12 @@ import de.hochschule_bochum.matrixtable.engine.game.GameStatus;
 import de.hochschule_bochum.matrixtable.ledmatrix.objects.Display;
 import de.hochschule_bochum.matrixtable.ledmatrix.objects.impl.APA102Impl;
 import de.hochschule_bochum.matrixtable.ledmatrix.objects.impl.WS2812Impl;
-import de.hochschule_bochum.matrixtable.server.bluetooth.controller.ControllerServer;
+import de.hochschule_bochum.matrixtable.server.controller.ControllerServer;
 import de.hochschule_bochum.matrixtable.server.mqtt.MqttClient;
 import de.hochschule_bochum.matrixtable.server.webapi.NanoServer;
-import de.hochschule_bochum.matrixtable.server.webapi.WebSocketServer;
+import de.hochschule_bochum.matrixtable.server.webapi.NanoWebsocketServer;
 import org.eclipse.paho.client.mqttv3.MqttException;
-import org.glassfish.tyrus.server.Server;
 
-import javax.websocket.DeploymentException;
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -26,6 +24,7 @@ public class LEDTable {
 
     private static Config conf;
     public static Display display;
+    public static NanoWebsocketServer websocketServer;
 
     public static void main(String[] args) throws IOException, InterruptedException {
         String settingsFile = "." + File.separator + "settings.json";
@@ -62,86 +61,88 @@ public class LEDTable {
 
         display.setMaxBrightness(conf.getDouble("max_brightness"));
 
-        if (conf.getBoolean("just_webserver")) {
-            Server server = WebSocketServer.startServer(display);
+        GameStatus status = new GameStatus();
+        status.setGame(null);
+        status.setApiURL(conf.getString("api_address"));
 
+        // TODO: Check native libraries
+        // TODO: Menu OOP
+        Thread webserver = new Thread(() -> {
             try {
-                server.start();
-                Thread.currentThread().join();
-            } catch (DeploymentException e) {
-                Logger.getLogger(WebSocketServer.class.getName()).log(Level.SEVERE, null, e);
+                new NanoServer(conf.getInt("api_port"), status, display);
+            } catch (IOException e) {
+                Logger.getLogger(NanoServer.class.getName()).log(Level.SEVERE, null, e);
             }
-        } else {
+        });
+        webserver.start();
 
-            GameStatus status = new GameStatus();
-            status.setApiURL(conf.getString("api_address"));
-
-            // TODO: Check native libraries
-            // TODO: Menu OOP
-            Thread webserver = new Thread(() -> {
-                try {
-                    new NanoServer(conf.getInt("api_port"), status, display);
-                } catch (IOException e) {
-                    Logger.getLogger(NanoServer.class.getName()).log(Level.SEVERE, null, e);
-                }
-            });
-            webserver.start();
-
-            if (!conf.getString("mqtt_host").isEmpty()) {
-                try {
-                    new MqttClient(conf.getString("mqtt_host"), conf.getInt("mqtt_port"), conf.getString("mqtt_user"), conf.getString("mqtt_pass"), status, display);
-                } catch (MqttException e) {
-                    Logger.getLogger(MqttClient.class.getName()).log(Level.SEVERE, null, e);
-                }
+        Thread websocket = new Thread(() -> {
+            try {
+                websocketServer = new NanoWebsocketServer(conf.getInt("ws_port"), status, display);
+            } catch (IOException e) {
+                Logger.getLogger(NanoServer.class.getName()).log(Level.SEVERE, null, e);
             }
+        });
+        websocket.start();
 
-            while (true) {
-                ControllerServer controller = new ControllerServer(status);
-                final boolean[] connected = {true};
-                while (connected[0]) {
-                    if (status.getAnimation() != null) status.getAnimation().stop();
-                    display.clear();
+        if (!conf.getString("mqtt_host").isEmpty()) {
+            try {
+                new MqttClient(conf.getString("mqtt_host"), conf.getInt("mqtt_port"), conf.getString("mqtt_user"), conf.getString("mqtt_pass"), status, display);
+            } catch (MqttException e) {
+                Logger.getLogger(MqttClient.class.getName()).log(Level.SEVERE, null, e);
+            }
+        }
+
+        while (true) {
+            ControllerServer controller = new ControllerServer(status);
+            final boolean[] connected = {true};
+            while (connected[0]) {
+                if (status.getAnimation() != null) status.getAnimation().stop();
+                display.clear();
+                status.setGame(null);
+                controller.setOnGameSelected(game -> {
+                    if (status.getGame() != null) status.getGame().stop();
+                    status.setGame(game);
+                });
+
+                controller.setOnDisconnectListener(bool -> {
+                    connected[0] = false;
+                    if (status.getAnimation() != null) new Thread(() -> status.getAnimation().start()).start();
+                    status.setUsermac("");
+                    status.setUsername("");
+                    if (status.getGame() == null) return;
+                    status.getGame().stop();
                     status.setGame(null);
-                    controller.setOnGameSelected(game -> {
-                        if (status.getGame() != null) status.getGame().stop();
-                        status.setGame(game);
-                    });
+                });
 
-                    while (status.getGame() == null && connected[0]) {
-                        Thread.sleep(50);
-                    }
-
-                    if (status.getGame() == null) continue;
-                    status.getGame().setDisplay(display);
-                    status.getGame().setStatus(status);
-
-                    controller.setOnKeyChangeListener((key, newState) -> {
-                        if (status.getGame() == null) return;
-                        status.getGame().sendKey(key, newState);
-                    });
-                    controller.setOnKeyHoldListener(key -> {
-                        if (status.getGame() == null) return;
-                        status.getGame().sendHold(key);
-                    });
-                    controller.setOnDisconnectListener(device -> {
-                        connected[0] = false;
-                        if (status.getAnimation() != null) new Thread(() -> status.getAnimation().start()).start();
-                        status.setUsermac("");
-                        status.setUsername("");
-                        if (status.getGame() == null) return;
-                        status.getGame().stop();
-                        status.setGame(null);
-                    });
-
-                    status.getGame().start();
-                    display.clear();
+                while (status.getGame() == null && connected[0]) {
+                    Thread.sleep(50);
                 }
-                Thread.sleep(1500);
+
+                if (status.getGame() == null) continue;
+                status.getGame().setDisplay(display);
+                status.getGame().setStatus(status);
+
+                controller.setOnKeyChangeListener((key, newState) -> {
+                    if (status.getGame() == null) return;
+                    status.getGame().sendKey(key, newState);
+                });
+                controller.setOnKeyHoldListener(key -> {
+                    if (status.getGame() == null) return;
+                    status.getGame().sendHold(key);
+                });
+
+                status.getGame().start();
+                display.clear();
             }
         }
     }
 
     public static Display getDisplay() {
         return display;
+    }
+
+    public static NanoWebsocketServer getWebsocketServer() {
+        return websocketServer;
     }
 }

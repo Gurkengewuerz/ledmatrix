@@ -7,8 +7,8 @@ import de.hochschule_bochum.matrixtable.engine.game.GameStatus;
 import de.hochschule_bochum.matrixtable.game.snake.objects.SnakeBoard;
 import de.hochschule_bochum.matrixtable.game.snake.objects.SnakePoint;
 import de.hochschule_bochum.matrixtable.game.snake.objects.SnakeTile;
-import de.hochschule_bochum.matrixtable.server.bluetooth.controller.ButtonState;
-import de.hochschule_bochum.matrixtable.server.bluetooth.controller.Key;
+import de.hochschule_bochum.matrixtable.server.controller.ButtonState;
+import de.hochschule_bochum.matrixtable.server.controller.Key;
 import de.hochschule_bochum.matrixtable.utils.Utils;
 
 import java.util.logging.Level;

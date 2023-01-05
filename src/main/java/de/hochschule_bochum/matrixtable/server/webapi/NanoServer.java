@@ -14,8 +14,11 @@ import java.awt.*;
 import java.io.*;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.logging.Level;
@@ -25,11 +28,11 @@ import java.util.logging.Logger;
  * Created by nikla on 19.07.2017.
  */
 public class NanoServer extends NanoHTTPD {
-    private GameStatus gamestatus;
-    private Display display;
+    private final GameStatus gamestatus;
+    private final Display display;
 
     public NanoServer(int port, GameStatus gamestatus, Display display) throws IOException {
-        super(8081);
+        super(port);
         this.gamestatus = gamestatus;
         this.display = display;
         start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);
@@ -40,18 +43,19 @@ public class NanoServer extends NanoHTTPD {
         Map<String, String> headers = session.getHeaders();
         String ip = headers.get("remote-addr");
         Logger.getLogger(getClass().getName()).log(Level.INFO, session.getMethod().name() + ": " + session.getUri() + " " + ip);
-        Map<String, String> parms = session.getParms();
 
-        try {
-            if (session.getMethod().equals(Method.POST))
-                session.parseBody(parms);
-        } catch (IOException | ResponseException e) {
-            return getError(Response.Status.INTERNAL_ERROR);
+        if (Method.PUT.equals(session.getMethod()) || Method.POST.equals(session.getMethod())) {
+            try {
+                session.parseBody(new HashMap<>());
+            } catch (IOException | ResponseException e) {
+                return getError(Response.Status.INTERNAL_ERROR);
+            }
         }
 
         JSONObject json = new JSONObject("{'error':'no records found'}");
         Response.Status status = Response.Status.BAD_REQUEST;
 
+        final Map<String, String> parms = session.getParms();
         String search = parms.get("player");
         String game = parms.get("game");
 
@@ -180,6 +184,20 @@ public class NanoServer extends NanoHTTPD {
                     Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
                     return getError(Response.Status.INTERNAL_ERROR);
                 }
+            } else if (session.getUri().startsWith("/dev")) {
+                String[] allowedIndex = new String[]{"index.html"};
+                String path = session.getUri().substring(1);
+                if (path.endsWith("/") || !path.contains("."))
+                    path = path + (path.endsWith("/") ? "" : File.separator) + allowedIndex[0];
+                final File file = Paths.get(Paths.get("").toAbsolutePath().toString(), path).toFile();
+                if (!file.exists() || !file.canRead()) return getError(Response.Status.NOT_FOUND);
+                try {
+                    InputStream is = Files.newInputStream(file.toPath());
+                    return newFixedLengthResponse(Response.Status.OK, URLConnection.guessContentTypeFromStream(is), readStream(is));
+                } catch (IOException e) {
+                    Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
+                    return getError(Response.Status.INTERNAL_ERROR);
+                }
             } else if (session.getUri().startsWith("/highscore")) {
                 String playerWhere = "%";
                 if (search != null)
@@ -188,7 +206,7 @@ public class NanoServer extends NanoHTTPD {
                 String gameWhere = "%";
                 if (game != null)
                     gameWhere = "%" + game + "%";
-                ResultSet result = Database.db.executeQuery("SELECT score,created,game,username FROM score s JOIN devices d ON s.user_id = d.user_id WHERE username LIKE ? AND game LIKE ? ORDER BY s.score DESC;", playerWhere, gameWhere);
+                ResultSet result = Database.db.executeQuery("SELECT score,created,game,username FROM score s JOIN devices d ON s.user_id = d.user_id WHERE username LIKE ? AND game LIKE ? ORDER BY s.score DESC LIMIT 10;", playerWhere, gameWhere);
                 if (result == null) return getError(Response.Status.INTERNAL_ERROR);
 
                 json = new JSONObject();
